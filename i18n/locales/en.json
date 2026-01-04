@@ -1,0 +1,116 @@
+{
+  "common": {
+    "home": "Home",
+    "search": "Search",
+    "explore": "Explore",
+    "about": "About Us",
+    "contact": "Contact",
+    "policy": "Policy",
+    "viewAll": "View All",
+    "viewMore": "View More",
+    "backToHome": "Back to Home",
+    "readTime": "min read",
+    "all": "All"
+  },
+  "header": {
+    "brand": "VNCANVAS",
+    "brandShort": "VN.",
+    "north": "North",
+    "central": "Central",
+    "south": "South",
+    "menu": "Regions"
+  },
+  "footer": {
+    "tagline": "Sharing the beauty of Vietnam.",
+    "aboutUs": "About Us",
+    "contact": "Contact",
+    "policy": "Policy"
+  },
+  "hero": {
+    "subtitle": "DISCOVER VIETNAM",
+    "title": "VIETNAM",
+    "cta": "Find Destinations"
+  },
+  "home": {
+    "journeySubtitle": "Journey Through Vietnam",
+    "journeyTitle": "Along the Country",
+    "categoriesTitle": "Explore by Interest"
+  },
+  "search": {
+    "title": "Search Your Journey",
+    "placeholder": "Enter destination name, keywords...",
+    "noResults": "No destinations found.",
+    "showingResults": "Found {count} results"
+  },
+  "detail": {
+    "beautyTitle": "Beauty Through Every Angle",
+    "infoTitle": "Essential Information",
+    "bestTime": "Best Time",
+    "transport": "Transportation",
+    "tips": "Tips",
+    "notFound": "Destination not found."
+  },
+  "region": {
+    "subtitle": "Region",
+    "destinationsTitle": "Destinations in"
+  },
+  "about": {
+    "title": "About VNCANVAS",
+    "intro": "\"Hello! I am a child of Vietnam. With a burning passion for my homeland, I created VNCANVAS as a digital canvas to preserve and share the endless beauty of Vietnam with friends around the world.\"",
+    "description": "This project is a personal endeavor, with the desire to spread the image of the country and the gentle, hospitable Vietnamese people. I hope VNCANVAS will be an inspiration for your upcoming trips."
+  },
+  "contact": {
+    "title": "Contact",
+    "message": "This feature is being updated. Please come back later!"
+  },
+  "policy": {
+    "title": "Policy & Terms",
+    "nonprofitTitle": "Non-Profit Project",
+    "nonprofitText": "VNCANVAS is a non-profit project. The sole purpose of the website is to promote tourism and the image of Vietnam. We do not charge any fees from users.",
+    "copyrightTitle": "Image Copyright",
+    "copyrightText": "All content and images used on the website are for the purpose of introducing the beauty of culture and nature, and are not for commercialization. If you are the owner of an image and want it removed, please contact us."
+  },
+  "categories": {
+    "nature": "Nature",
+    "culture": "Culture",
+    "city": "City",
+    "food": "Food",
+    "adventure": "Adventure"
+  },
+  "regions": {
+    "north": "North",
+    "central": "Central",
+    "south": "South"
+  },
+  "seo": {
+    "home": {
+      "title": "Vietnam Canvas - Discover Vietnam",
+      "description": "Discover the beauty of Vietnam through stunning destinations from North to South. Nature, culture, cuisine, and unique experiences.",
+      "ogTitle": "Vietnam Canvas - Discover the Beauty of Vietnam",
+      "ogDescription": "Explore stunning destinations, rich culture, and unique experiences across Vietnam from North to South."
+    },
+    "search": {
+      "title": "Search Destinations - Vietnam Canvas",
+      "description": "Search and discover amazing travel destinations in Vietnam. Filter by categories: Nature, Culture, City, Food, Adventure.",
+      "ogTitle": "Search Destinations - Vietnam Canvas",
+      "ogDescription": "Search and discover amazing travel destinations in Vietnam. Filter by categories: Nature, Culture, City, Food, Adventure."
+    },
+    "about": {
+      "title": "About Us - Vietnam Canvas",
+      "description": "VNCANVAS is a personal project dedicated to sharing the beauty of Vietnam with friends around the world. Learn about our mission and vision.",
+      "ogTitle": "About Us - Vietnam Canvas",
+      "ogDescription": "A personal project dedicated to sharing the endless beauty of Vietnam with friends around the world."
+    },
+    "contact": {
+      "title": "Contact - Vietnam Canvas",
+      "description": "Contact Vietnam Canvas. This feature is being updated.",
+      "ogTitle": "Contact - Vietnam Canvas"
+    },
+    "policy": {
+      "title": "Policy & Terms - Vietnam Canvas",
+      "description": "Learn about the policies and terms of use for Vietnam Canvas. A non-profit project promoting Vietnam tourism.",
+      "ogTitle": "Policy & Terms - Vietnam Canvas",
+      "ogDescription": "Learn about the policies and terms of use for Vietnam Canvas, a non-profit project promoting Vietnam tourism."
+    }
+  }
+}

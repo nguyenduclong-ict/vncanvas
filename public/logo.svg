@@ -1,0 +1,37 @@
+<svg width="400" height="400" viewBox="30 5 240 240" fill="none" xmlns="http://www.w3.org/2000/svg"
+  class="drop-shadow-[0_0_25px_rgba(252,211,77,0.3)] transition-transform duration-700 hover:scale-105">
+
+  <!-- Gradient Definition -->
+  <defs>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="300" y2="300" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FCD34D" /> <!-- Amber-300 -->
+      <stop offset="1" stop-color="#F59E0B" /> <!-- Amber-500 -->
+    </linearGradient>
+  </defs>
+
+  <!-- THE MOUNTAIN (Inner Core) -->
+  <!-- Stylized M shape resembling mountains, nested inside the lotus base -->
+  <path d="M100 180 L130 130 L150 160 L170 120 L200 180" stroke="url(#goldGrad)" stroke-width="12"
+    stroke-linecap="round" stroke-linejoin="round" fill="none" />
+
+  <!-- THE LOTUS (Outer Embrace) -->
+
+  <!-- Left Petal: Curves up and hugs the left mountain slope -->
+  <path d="M80 180 C60 140 80 100 110 80" stroke="url(#goldGrad)" stroke-width="12" stroke-linecap="round"
+    stroke-linejoin="round" />
+
+  <!-- Right Petal: Curves up and hugs the right mountain slope -->
+  <path d="M220 180 C240 140 220 100 190 80" stroke="url(#goldGrad)" stroke-width="12" stroke-linecap="round"
+    stroke-linejoin="round" />
+
+  <!-- Top/Center Petal: Floating above the peaks like a sun or halo -->
+  <path d="M150 50 C130 80 130 90 150 110 C170 90 170 80 150 50 Z" fill="none" stroke="url(#goldGrad)" stroke-width="8"
+    stroke-linejoin="round" />
+
+  <!-- Base Line: Connecting everything grounding nature -->
+  <path d="M60 200 Q150 220 240 200" stroke="url(#goldGrad)" stroke-width="12" stroke-linecap="round" />
+
+  <!-- Sun/Moon Dot (Optional accent) -->
+  <circle cx="150" cy="40" r="6" fill="#FCD34D" />
+
+</svg>

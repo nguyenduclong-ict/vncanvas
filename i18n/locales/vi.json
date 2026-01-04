@@ -1,0 +1,116 @@
+{
+  "common": {
+    "home": "Trang chủ",
+    "search": "Tìm kiếm",
+    "explore": "Khám phá",
+    "about": "Về chúng tôi",
+    "contact": "Liên hệ",
+    "policy": "Chính sách",
+    "viewAll": "Xem tất cả",
+    "viewMore": "Xem thêm",
+    "backToHome": "Quay về trang chủ",
+    "readTime": "phút đọc",
+    "all": "Tất cả"
+  },
+  "header": {
+    "brand": "VNCANVAS",
+    "brandShort": "VN.",
+    "north": "Miền Bắc",
+    "central": "Miền Trung",
+    "south": "Miền Nam",
+    "menu": "Vùng"
+  },
+  "footer": {
+    "tagline": "Chia sẻ vẻ đẹp Việt Nam.",
+    "aboutUs": "Về chúng tôi",
+    "contact": "Liên hệ",
+    "policy": "Chính sách"
+  },
+  "hero": {
+    "subtitle": "KHÁM PHÁ VIỆT NAM",
+    "title": "VIETNAM",
+    "cta": "Tìm điểm đến"
+  },
+  "home": {
+    "journeySubtitle": "Hành trình xuyên Việt",
+    "journeyTitle": "Dọc Miền Đất Nước",
+    "categoriesTitle": "Khám Phá Theo Sở Thích"
+  },
+  "search": {
+    "title": "Tìm Kiếm Hành Trình",
+    "placeholder": "Nhập tên địa điểm, từ khóa...",
+    "noResults": "Không tìm thấy địa điểm nào phù hợp.",
+    "showingResults": "Tìm thấy {count} kết quả"
+  },
+  "detail": {
+    "beautyTitle": "Vẻ đẹp qua từng góc nhìn",
+    "infoTitle": "Thông tin cần biết",
+    "bestTime": "Thời điểm lý tưởng",
+    "transport": "Di chuyển",
+    "tips": "Lời khuyên",
+    "notFound": "Không tìm thấy địa điểm."
+  },
+  "region": {
+    "subtitle": "Vùng Miền",
+    "destinationsTitle": "Điểm Đến"
+  },
+  "about": {
+    "title": "Về VNCANVAS",
+    "intro": "\"Xin chào! Tôi là một người con của đất Việt. Với tình yêu cháy bỏng dành cho quê hương, tôi đã tạo ra VNCANVAS như một bức tranh kỹ thuật số, nơi lưu giữ và chia sẻ vẻ đẹp bất tận của Việt Nam đến với bạn bè năm châu.\"",
+    "description": "Dự án này là tâm huyết cá nhân, với mong muốn lan tỏa hình ảnh đất nước, con người Việt Nam hiền hòa, mến khách. Hy vọng VNCANVAS sẽ là nguồn cảm hứng cho những chuyến đi sắp tới của bạn."
+  },
+  "contact": {
+    "title": "Liên Hệ",
+    "message": "Tính năng này đang được cập nhật. Vui lòng quay lại sau!"
+  },
+  "policy": {
+    "title": "Chính Sách & Điều Khoản",
+    "nonprofitTitle": "Dự án Phi Lợi Nhuận",
+    "nonprofitText": "VNCANVAS là một dự án phi lợi nhuận (Non-profit). Mục đích duy nhất của trang web là quảng bá du lịch và hình ảnh đất nước Việt Nam. Chúng tôi không thu bất kỳ khoản phí nào từ người dùng.",
+    "copyrightTitle": "Bản Quyền Hình Ảnh",
+    "copyrightText": "Mọi nội dung, hình ảnh được sử dụng trên trang web đều nhằm mục đích giới thiệu vẻ đẹp văn hóa, thiên nhiên và không phục vụ cho mục đích thương mại hóa. Nếu bạn là chủ sở hữu hình ảnh và muốn gỡ bỏ, vui lòng liên hệ với chúng tôi."
+  },
+  "categories": {
+    "nature": "Thiên Nhiên",
+    "culture": "Văn Hóa",
+    "city": "Đô Thị",
+    "food": "Ẩm Thực",
+    "adventure": "Khám Phá"
+  },
+  "regions": {
+    "north": "Miền Bắc",
+    "central": "Miền Trung",
+    "south": "Miền Nam"
+  },
+  "seo": {
+    "home": {
+      "title": "Vietnam Canvas - Khám Phá Việt Nam",
+      "description": "Khám phá vẻ đẹp Việt Nam qua những điểm đến tuyệt vời từ Bắc đến Nam. Thiên nhiên, văn hóa, ẩm thực và những trải nghiệm độc đáo.",
+      "ogTitle": "Vietnam Canvas - Discover the Beauty of Vietnam",
+      "ogDescription": "Explore stunning destinations, rich culture, and unique experiences across Vietnam from North to South."
+    },
+    "search": {
+      "title": "Tìm kiếm điểm đến - Vietnam Canvas",
+      "description": "Tìm kiếm và khám phá các điểm đến du lịch tuyệt vời tại Việt Nam. Lọc theo danh mục: Thiên nhiên, Văn hóa, Đô thị, Ẩm thực, Khám phá.",
+      "ogTitle": "Search Destinations - Vietnam Canvas",
+      "ogDescription": "Search and discover amazing travel destinations in Vietnam. Filter by categories: Nature, Culture, City, Food, Adventure."
+    },
+    "about": {
+      "title": "Về chúng tôi - Vietnam Canvas",
+      "description": "VNCANVAS là dự án cá nhân với mong muốn chia sẻ vẻ đẹp Việt Nam đến với bạn bè năm châu. Tìm hiểu về sứ mệnh và tầm nhìn của chúng tôi.",
+      "ogTitle": "About Us - Vietnam Canvas",
+      "ogDescription": "A personal project dedicated to sharing the endless beauty of Vietnam with friends around the world."
+    },
+    "contact": {
+      "title": "Liên hệ - Vietnam Canvas",
+      "description": "Liên hệ với Vietnam Canvas. Tính năng đang được cập nhật.",
+      "ogTitle": "Contact - Vietnam Canvas"
+    },
+    "policy": {
+      "title": "Chính sách & Điều khoản - Vietnam Canvas",
+      "description": "Tìm hiểu về chính sách và điều khoản sử dụng của Vietnam Canvas. Dự án phi lợi nhuận quảng bá du lịch Việt Nam.",
+      "ogTitle": "Policy & Terms - Vietnam Canvas",
+      "ogDescription": "Learn about the policies and terms of use for Vietnam Canvas, a non-profit project promoting Vietnam tourism."
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "vietnamcanvas",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "generate-pwa-assets": "pwa-assets-generator public/logo.svg --preset minimal",
+    "db:schema": "wrangler d1 execute vietnam-canvas-db --local --file=./db/schema.sql",
+    "db:seed": "wrangler d1 execute vietnam-canvas-db --local --file=./db/seed.sql",
+    "db:init": "npm run db:schema && npm run db:seed"
+  },
+  "dependencies": {
+    "@vueuse/nuxt": "^14.1.0",
+    "gsap": "^3.14.2",
+    "lucide-vue-next": "^0.562.0",
+    "nuxt": "^4.2.2",
+    "vue": "^3.5.26",
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@nuxtjs/i18n": "^10.2.1",
+    "@nuxtjs/seo": "^3.3.0",
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "@vite-pwa/assets-generator": "^1.0.2",
+    "sass": "^1.97.1",
+    "wrangler": "^4.54.0"
+  }
+}

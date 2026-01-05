@@ -1,42 +1,36 @@
+import { eq } from "drizzle-orm";
+import { destinations } from "~~/db/schema";
+
 export default defineEventHandler(async (event) => {
   const slug = getRouterParam(event, "slug");
-  const db = event.context.cloudflare?.env?.DB;
+  const db = useDb(event);
 
-  if (!db) {
+  if (!slug) {
     throw createError({
-      statusCode: 500,
-      statusMessage: "Database connection not available",
+      statusCode: 400,
+      statusMessage: "Slug is required",
     });
   }
 
-  try {
-    const destination = await db
-      .prepare("SELECT * FROM destinations WHERE slug = ?")
-      .bind(slug)
-      .first();
+  const destination = await db
+    .select()
+    .from(destinations)
+    .where(eq(destinations.slug, slug))
+    .get();
 
-    if (!destination) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: "Destination not found",
-      });
-    }
-
-    // Parse JSON fields
-    if (destination.mood_tags) {
-      destination.mood_tags = JSON.parse(destination.mood_tags as string);
-    }
-    if (destination.detail_json) {
-      destination.detail_json = JSON.parse(destination.detail_json as string);
-    }
-
-    return destination;
-  } catch (error: any) {
-    if (error.statusCode === 404) throw error;
-    console.error("Database error:", error);
+  if (!destination) {
     throw createError({
-      statusCode: 500,
-      statusMessage: "Failed to fetch destination",
+      statusCode: 404,
+      statusMessage: "Destination not found",
     });
   }
+
+  // Parse JSON fields
+  return {
+    ...destination,
+    moodTags: destination.moodTags ? JSON.parse(destination.moodTags) : null,
+    detailJson: destination.detailJson
+      ? JSON.parse(destination.detailJson)
+      : null,
+  };
 });

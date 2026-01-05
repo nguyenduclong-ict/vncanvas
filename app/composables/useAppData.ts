@@ -1,41 +1,9 @@
 // Composable to fetch app data from API
 // All data comes from server API endpoints
 
-export interface Destination {
-  id: number;
-  slug: string;
-  title: string;
-  region: "north" | "central" | "south";
-  category: string;
-  short_desc: string;
-  long_desc?: string;
-  thumbnail: string;
-  cover_image?: string;
-  mood_tags?: string[];
-  detail_json?: {
-    bestTime?: string;
-    transport?: string;
-    tips?: string;
-    story?: Array<{ text: string; img: string }>;
-  };
-}
+import type { Destination, RegionInfo, Category } from "~~/shared/types";
 
-export interface RegionInfo {
-  name: string;
-  slogan: string;
-  description: string;
-  features: Array<{
-    icon: string;
-    title: string;
-    text: string;
-  }>;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  icon: string;
-}
+export type { Destination, RegionInfo, Category };
 
 export const useDestinations = () => {
   return useFetch<Destination[]>("/api/destinations");

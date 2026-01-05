@@ -5,5 +5,6 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB" # Available in your Worker on env.DB
 database_name = "vietnam-canvas-db"
-database_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" # Placeholder, run `wrangler d1 create` to get real ID
+database_id = "5247e97b-d6aa-46e2-8f45-338c6ef09275"
 preview_database_id = "DB"
+migrations_dir = "db/migrations"

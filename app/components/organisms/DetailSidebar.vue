@@ -24,9 +24,9 @@ import InfoItem from "@/components/molecules/InfoItem.vue";
 
 defineProps<{
   details: {
-    bestTime: string;
-    transport: string;
-    tips: string;
+    bestTime?: string;
+    transport?: string;
+    tips?: string;
   };
 }>();
 </script>

@@ -1,12 +1,49 @@
-INSERT INTO destinations (slug, title, region, category, short_desc, long_desc, thumbnail, mood_tags, detail_json) VALUES 
-('ha-long-bay', 'Hạ Long Bay', 'north', 'nature', 'Vịnh Rồng hạ thế - Di sản thiên nhiên thế giới.', 'Hạ Long không chỉ là một vịnh biển, đó là một kiệt tác của tạo hóa với hàng nghìn đảo đá vôi kỳ vĩ.', 'https://images.unsplash.com/photo-1528127269322-53996db8668d?q=80&w=1920', '["majestic", "peaceful"]', '{"bestTime":"Tháng 4-6","transport":"Xe khách, Thủy phi cơ","story":[{"text":"Hệ thống đảo đá vôi dày đặc.","img":"https://images.unsplash.com/photo-1504457047772-27faf1c00561"},{"text":"Hang Sửng Sốt huyền ảo.","img":"https://images.unsplash.com/photo-1552382915-4309395292de"}]}'),
+-- Seed data for destinations table
+DELETE FROM destinations;
 
-('hoi-an', 'Hội An', 'central', 'culture', 'Phố cổ đèn lồng đầy hoài niệm.', 'Hội An như một bức tranh mộc mạc, giản dị và nên thơ. Những bức tường vàng, những mái ngói rêu phong...', 'https://images.unsplash.com/photo-1629813291579-1e35d1200b65?q=80&w=1920', '["nostalgic", "peaceful"]', '{"bestTime":"Tháng 2-4","transport":"Bay Đà Nẵng, Taxi","story":[{"text":"Chùa Cầu cổ kính.","img":"https://images.unsplash.com/photo-1565060169373-c62586614144"},{"text":"Đêm phố cổ lung linh.","img":"https://images.unsplash.com/photo-1579782536832-6cf5434cf94c"}]}'),
-
-('saigon', 'Thành phố HCM', 'south', 'city', 'Thành phố không ngủ, năng động.', 'Thành phố Hồ Chí Minh là sự pha trộn độc đáo giữa nét cổ kính của kiến trúc Pháp và sự hiện đại...', 'https://images.unsplash.com/photo-1568285923187-575510b64d39?q=80&w=1920', '["dynamic", "modern"]', '{"bestTime":"Mùa khô","transport":"Sân bay Tân Sơn Nhất","story":[{"text":"Nhà thờ Đức Bà.","img":"https://images.unsplash.com/photo-1583417319070-4a69db38a482"},{"text":"Landmark 81 hiện đại.","img":"https://images.unsplash.com/photo-1568285923187-575510b64d39"}]}'),
-
-('sapa', 'Sapa', 'north', 'nature', 'Thị trấn trong sương.', 'Sapa ẩn hiện trong sương mù, nổi tiếng với những thửa ruộng bậc thang vàng óng.', 'https://images.unsplash.com/photo-1525946194726-2826dd857738?q=80&w=1920', '["majestic", "cloudy"]', '{"bestTime":"Tháng 9-11","transport":"Xe giường nằm","story":[{"text":"Dãy Hoàng Liên Sơn.","img":"https://images.unsplash.com/photo-1525946194726-2826dd857738"},{"text":"Ruộng bậc thang.","img":"https://images.unsplash.com/photo-1587822997103-68d2c949c8f0"}]}'),
-
-('phong-nha', 'Phong Nha', 'central', 'adventure', 'Vương quốc hang động.', 'Thiên đường cho những ai yêu thích thám hiểm với hệ thống hang động đá vôi cổ nhất châu Á.', 'https://images.unsplash.com/photo-1555021200-e147b311246d?q=80&w=1920', '["mysterious", "adventurous"]', '{"bestTime":"Tháng 4-8","transport":"Bay Đồng Hới","story":[{"text":"Cửa hang rộng lớn.","img":"https://images.unsplash.com/photo-1555021200-e147b311246d"},{"text":"Thạch nhũ triệu năm.","img":"https://images.unsplash.com/photo-1517228867373-c65181b3732d"}]}'),
-
-('can-tho', 'Cần Thơ', 'south', 'culture', 'Tây Đô sông nước hiền hòa.', 'Cần Thơ gạo trắng nước trong, nổi tiếng với Chợ nổi Cái Răng tấp nập vào buổi sớm mai.', 'https://images.unsplash.com/photo-1599708153386-5386411516e8?q=80&w=1920', '["peaceful", "river"]', '{"bestTime":"Mùa nước nổi","transport":"Xe khách","story":[{"text":"Chợ nổi Cái Răng","img":"https://images.unsplash.com/photo-1599708153386-5386411516e8"}]}');
+INSERT INTO destinations (slug, title, region, province, category, short_desc, long_desc, thumbnail, cover_image, mood_tags, audio_url, detail_json, created_at) VALUES 
+(
+  'ha-long-bay',
+  'Vịnh Hạ Long',
+  'north',
+  'Quảng Ninh',
+  'nature',
+  'Di sản thiên nhiên thế giới với hàng ngàn đảo đá vôi.',
+  'Vịnh Hạ Long là một trong những kỳ quan thiên nhiên của thế giới, nổi tiếng với hệ thống đảo đá vôi và hang động tuyệt đẹp. Nơi đây thu hút hàng triệu du khách mỗi năm đến tham quan, du thuyền và khám phá vẻ đẹp hùng vĩ của thiên nhiên.',
+  '/images/halong.jpg',
+  '/images/halong-cover.jpg',
+  '["majestic", "peaceful", "wonder"]',
+  '/audio/halong.mp3',
+  '{"bestTime":"Tháng 4 - Tháng 6 hoặc Tháng 9 - Tháng 11","transport":"Xe khách từ Hà Nội (2.5h), Tàu hỏa, Thủy phi cơ","tips":"Nên đặt du thuyền trước ít nhất 2 tuần. Mang theo kem chống nắng và kính râm.","sections":[{"type":"intro","content":"Hạ Long - Kỳ quan đá dựng giữa trời xanh.","image":"/images/halong-intro.jpg"},{"type":"history","content":"Truyền thuyết Rồng Mẹ xuống trần gian..."}]}',
+  datetime('now')
+),
+(
+  'hoi-an',
+  'Phố Cổ Hội An',
+  'central',
+  'Quảng Nam',
+  'culture',
+  'Thành phố cổ kính với những ngôi nhà vàng và đèn lồng.',
+  'Hội An là một thương cảng sầm uất từ thế kỷ 15 đến 19. Ngày nay, nơi đây lưu giữ được vẻ đẹp cổ kính với kiến trúc độc đáo, văn hóa ẩm thực phong phú và những đêm thả đèn hoa đăng lung linh trên sông Hoài.',
+  '/images/hoian.jpg',
+  '/images/hoian-cover.jpg',
+  '["nostalgic", "romantic", "colorful"]',
+  '/audio/hoian.mp3',
+  '{"bestTime":"Tháng 2 - Tháng 4 (mùa khô, mát mẻ)","transport":"Máy bay đến Đà Nẵng, sau đó taxi/bus (30km)","tips":"Nên đi dạo phố cổ vào sáng sớm hoặc chiều tối. Thử món Cao Lầu.","sections":[{"type":"intro","content":"Hội An - Nơi thời gian ngưng đọng.","image":"/images/hoian-intro.jpg"},{"type":"culture","content":"Đèn lồng và những kiến trúc cổ..."}]}',
+  datetime('now')
+),
+(
+  'sai-gon',
+  'TP. Hồ Chí Minh',
+  'south',
+  'TP. Hồ Chí Minh',
+  'city',
+  'Trung tâm kinh tế năng động và hiện đại nhất cả nước.',
+  'Thành phố Hồ Chí Minh (Sài Gòn) là đô thị lớn nhất Việt Nam, nơi giao thoa giữa văn hóa Đông - Tây, giữa nét cổ kính và hiện đại. Nơi đây nổi tiếng với nhịp sống sôi động, ẩm thực đường phố đa dạng và những công trình kiến trúc thời Pháp thuộc.',
+  '/images/saigon.jpg',
+  '/images/saigon-cover.jpg',
+  '["dynamic", "modern", "nightlife"]',
+  '/audio/saigon.mp3',
+  '{"bestTime":"Tháng 12 - Tháng 4 (mùa khô)","transport":"Máy bay Tân Sơn Nhất, Tàu hỏa, Xe khách","tips":"Cẩn thận tư trang chỗ đông người. Nên trải nghiệm cà phê bệt và xe buýt sông.","sections":[{"type":"intro","content":"Sài Gòn - Thành phố không ngủ.","image":"/images/saigon-intro.jpg"},{"type":"lifestyle","content":"Nhịp sống hối hả và ẩm thực đường phố..."}]}',
+  datetime('now')
+);

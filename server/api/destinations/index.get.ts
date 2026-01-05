@@ -1,26 +1,20 @@
+import { destinations } from "~~/db/schema";
+
 export default defineEventHandler(async (event) => {
-  const db = event.context.cloudflare?.env?.DB;
+  const db = useDb(event);
 
-  if (!db) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Database connection not available",
-    });
-  }
+  const results = await db
+    .select({
+      id: destinations.id,
+      slug: destinations.slug,
+      title: destinations.title,
+      region: destinations.region,
+      category: destinations.category,
+      shortDesc: destinations.shortDesc,
+      thumbnail: destinations.thumbnail,
+    })
+    .from(destinations)
+    .orderBy(destinations.id);
 
-  try {
-    const { results } = await db
-      .prepare(
-        "SELECT id, slug, title, region, category, short_desc, thumbnail FROM destinations ORDER BY id"
-      )
-      .all();
-
-    return results || [];
-  } catch (error) {
-    console.error("Database error:", error);
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Failed to fetch destinations",
-    });
-  }
+  return results;
 });

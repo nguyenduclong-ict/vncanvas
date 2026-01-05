@@ -5,9 +5,13 @@
       :key="idx"
       class="bg-stone-900 border border-white/5 rounded-2xl overflow-hidden"
     >
-      <img :src="section.img" class="w-full h-64 md:h-96 object-cover" />
+      <img
+        v-if="section.image"
+        :src="section.image"
+        class="w-full h-64 md:h-96 object-cover"
+      />
       <div class="p-6">
-        <p class="text-lg text-gray-200">{{ section.text }}</p>
+        <p class="text-lg text-gray-200">{{ section.content }}</p>
       </div>
     </div>
   </div>
@@ -16,8 +20,8 @@
 <script setup lang="ts">
 defineProps<{
   story: Array<{
-    text: string;
-    img: string;
+    content: string;
+    image?: string;
   }>;
 }>();
 </script>

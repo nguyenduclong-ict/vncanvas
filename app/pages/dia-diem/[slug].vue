@@ -38,17 +38,17 @@
           <p
             class="text-xl md:text-2xl font-serif text-white mb-8 border-l-4 border-vn-gold pl-6 italic"
           >
-            "{{ dest.short_desc }}"
+            "{{ dest.shortDesc }}"
           </p>
-          <p class="text-gray-300 leading-relaxed mb-8">{{ dest.long_desc }}</p>
+          <p class="text-gray-300 leading-relaxed mb-8">{{ dest.longDesc }}</p>
           <SectionHeading tag="h3">
             {{ $t("detail.beautyTitle") }}
           </SectionHeading>
-          <StorySection :story="dest.detail_json?.story || []" />
+          <StorySection :story="dest.detailJson?.sections || []" />
         </div>
       </div>
       <div class="lg:w-1/3">
-        <DetailSidebar :details="dest.detail_json as any" />
+        <DetailSidebar :details="dest.detailJson || {}" />
       </div>
     </div>
   </div>
@@ -73,6 +73,8 @@ const slug = computed(() => route.params.slug as string);
 const { data: dest } = await useDestination(slug);
 const { data: categories } = await useCategories();
 
+console.log(dest.value);
+
 const categoryName = computed(() =>
   dest.value
     ? categories.value?.find((c) => c.id === dest.value?.category)?.name ||
@@ -87,10 +89,10 @@ useSeoMeta({
       : "Chi tiết - Vietnam Canvas"
   ),
   description: computed(() =>
-    dest.value ? dest.value.long_desc : "Khám phá điểm đến du lịch Việt Nam"
+    dest.value ? dest.value.longDesc : "Khám phá điểm đến du lịch Việt Nam"
   ),
   ogTitle: computed(() => dest.value?.title || "Destination"),
-  ogDescription: computed(() => dest.value?.short_desc || ""),
+  ogDescription: computed(() => dest.value?.shortDesc || ""),
   ogImage: computed(() => dest.value?.thumbnail || ""),
   twitterCard: "summary_large_image",
 });

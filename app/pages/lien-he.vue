@@ -14,9 +14,11 @@
       <p class="text-gray-400 mb-8">
         {{ $t("contact.message") }}
       </p>
-      <BaseButton to="/" variant="glass" class="rounded-full text-sm">
-        {{ $t("common.backToHome") }}
-      </BaseButton>
+      <NuxtLink :to="localePath('/')">
+        <BaseButton variant="glass" class="rounded-full text-sm">
+          {{ $t("common.backToHome") }}
+        </BaseButton>
+      </NuxtLink>
     </div>
   </div>
 </template>
@@ -26,6 +28,7 @@ import BaseButton from "@/components/atoms/BaseButton.vue";
 import BaseIcon from "@/components/atoms/BaseIcon.vue";
 
 const { t } = useI18n();
+const localePath = useLocalePath();
 
 useSeoMeta({
   title: t("seo.contact.title"),

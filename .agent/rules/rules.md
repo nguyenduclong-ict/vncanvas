@@ -8,7 +8,7 @@ trigger: always_on
 
 # Vue pattern
 
-order of sections in .vue file order like
+order of sections in .vue file order must
 
 <template></template>
 

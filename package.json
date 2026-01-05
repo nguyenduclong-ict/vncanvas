@@ -12,10 +12,18 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply vietnam-canvas-db --local",
     "db:seed": "wrangler d1 execute vietnam-canvas-db --local --file=./db/seed.sql",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "import:destinations": "npx tsx scripts/import_destinations.ts",
+    "create-admin": "npx tsx scripts/create_admin.ts"
   },
   "dependencies": {
+    "@google/genai": "^1.34.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^25.0.3",
     "@vueuse/nuxt": "^14.1.0",
+    "bcryptjs": "^3.0.3",
+    "cheerio": "^1.1.2",
+    "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.1",
     "gsap": "^3.14.2",
     "lucide-vue-next": "^0.562.0",

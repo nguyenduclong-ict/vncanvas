@@ -26,17 +26,18 @@
       >
         {{ $t("hero.title") }}
       </h1>
-      <BaseButton
-        variant="glass"
-        @click="$router.push('/tim-kiem')"
-        class="mt-8 animate-fade-in-up"
-        style="animation-delay: 0.6s"
-      >
-        <template #icon-left>
-          <BaseIcon name="search" class="w-4 h-4" />
-        </template>
-        {{ $t("hero.cta") }}
-      </BaseButton>
+      <NuxtLink :to="localePath('/tim-kiem')">
+        <BaseButton
+          variant="glass"
+          class="mt-8 animate-fade-in-up"
+          style="animation-delay: 0.6s"
+        >
+          <template #icon-left>
+            <BaseIcon name="search" class="w-4 h-4" />
+          </template>
+          {{ $t("hero.cta") }}
+        </BaseButton>
+      </NuxtLink>
     </div>
   </div>
 </template>
@@ -44,4 +45,6 @@
 <script setup lang="ts">
 import BaseButton from "@/components/atoms/BaseButton.vue";
 import BaseIcon from "@/components/atoms/BaseIcon.vue";
+
+const localePath = useLocalePath();
 </script>

@@ -9,38 +9,38 @@
           : '',
       ]"
     >
-      <div
+      <NuxtLink
+        :to="localePath('/')"
         class="text-2xl font-serif font-bold tracking-widest cursor-pointer text-white"
-        @click="$router.push('/')"
       >
         {{ $t("header.brand") }}
-      </div>
+      </NuxtLink>
       <div
         class="flex gap-8 text-sm tracking-wider uppercase font-medium text-gray-300"
       >
         <NuxtLink
-          to="/"
+          :to="localePath('/')"
           exact-active-class="text-vn-gold"
           class="hover:text-vn-gold transition"
         >
           {{ $t("common.home") }}
         </NuxtLink>
         <NuxtLink
-          to="/mien/north"
+          :to="localePath('/mien/north')"
           active-class="text-vn-gold"
           class="hover:text-vn-gold transition"
         >
           {{ $t("header.north") }}
         </NuxtLink>
         <NuxtLink
-          to="/mien/central"
+          :to="localePath('/mien/central')"
           active-class="text-vn-gold"
           class="hover:text-vn-gold transition"
         >
           {{ $t("header.central") }}
         </NuxtLink>
         <NuxtLink
-          to="/mien/south"
+          :to="localePath('/mien/south')"
           active-class="text-vn-gold"
           class="hover:text-vn-gold transition"
         >
@@ -75,12 +75,12 @@
             </button>
           </div>
         </div>
-        <button
-          @click="$router.push('/tim-kiem')"
+        <NuxtLink
+          :to="localePath('/tim-kiem')"
           class="p-2 hover:bg-white/10 rounded-full transition text-white"
         >
           <BaseIcon name="search" class="w-5 h-5" />
-        </button>
+        </NuxtLink>
       </div>
     </nav>
 
@@ -88,9 +88,9 @@
     <div
       class="md:hidden fixed top-0 w-full z-40 bg-stone-950/90 backdrop-blur border-b border-white/5 p-4 flex justify-between items-center"
     >
-      <div class="cursor-pointer" @click="$router.push('/')">
+      <NuxtLink :to="localePath('/')" class="cursor-pointer">
         <img src="/logo.svg" alt="Vietnam Canvas" class="h-8 w-auto" />
-      </div>
+      </NuxtLink>
       <div class="flex items-center gap-3">
         <!-- Mobile Language Dropdown -->
         <div class="relative">
@@ -114,9 +114,9 @@
             </button>
           </div>
         </div>
-        <button @click="$router.push('/tim-kiem')" class="text-white">
+        <NuxtLink :to="localePath('/tim-kiem')" class="text-white">
           <BaseIcon name="search" class="w-5 h-5" />
-        </button>
+        </NuxtLink>
       </div>
     </div>
 
@@ -125,7 +125,7 @@
       class="md:hidden fixed bottom-4 left-4 right-4 z-50 glass-panel rounded-2xl h-16 flex justify-around items-center px-2 shadow-2xl bg-stone-900/80 backdrop-blur"
     >
       <NuxtLink
-        to="/"
+        :to="localePath('/')"
         exact-active-class="text-white bg-white/10 rounded-lg"
         class="flex flex-col items-center p-2 text-gray-400 transition w-16"
       >
@@ -133,7 +133,7 @@
         <span class="text-[10px] uppercase">{{ $t("common.home") }}</span>
       </NuxtLink>
       <NuxtLink
-        to="/tim-kiem"
+        :to="localePath('/tim-kiem')"
         active-class="text-white bg-white/10 rounded-lg"
         class="flex flex-col items-center p-2 text-gray-400 transition w-16"
       >
@@ -162,21 +162,21 @@
       </button>
       <NuxtLink
         @click="showMenu = false"
-        to="/mien/north"
+        :to="localePath('/mien/north')"
         class="text-3xl font-serif text-white hover:text-vn-gold"
       >
         {{ $t("header.north") }}
       </NuxtLink>
       <NuxtLink
         @click="showMenu = false"
-        to="/mien/central"
+        :to="localePath('/mien/central')"
         class="text-3xl font-serif text-white hover:text-vn-gold"
       >
         {{ $t("header.central") }}
       </NuxtLink>
       <NuxtLink
         @click="showMenu = false"
-        to="/mien/south"
+        :to="localePath('/mien/south')"
         class="text-3xl font-serif text-white hover:text-vn-gold"
       >
         {{ $t("header.south") }}
@@ -184,21 +184,21 @@
       <div class="border-t border-white/10 w-24 my-4"></div>
       <NuxtLink
         @click="showMenu = false"
-        to="/ve-chung-toi"
+        :to="localePath('/ve-chung-toi')"
         class="text-xl text-gray-400 hover:text-white"
       >
         {{ $t("common.about") }}
       </NuxtLink>
       <NuxtLink
         @click="showMenu = false"
-        to="/chinh-sach"
+        :to="localePath('/chinh-sach')"
         class="text-xl text-gray-400 hover:text-white"
       >
         {{ $t("common.policy") }}
       </NuxtLink>
       <NuxtLink
         @click="showMenu = false"
-        to="/lien-he"
+        :to="localePath('/lien-he')"
         class="text-xl text-gray-400 hover:text-white"
       >
         {{ $t("common.contact") }}
@@ -212,6 +212,7 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import BaseIcon from "@/components/atoms/BaseIcon.vue";
 
 const { locale, locales, setLocale } = useI18n();
+const localePath = useLocalePath();
 
 const isScrolled = ref(false);
 const showMenu = ref(false);

@@ -48,7 +48,8 @@
     "bestTime": "Best Time",
     "transport": "Transportation",
     "tips": "Tips",
-    "notFound": "Destination not found."
+    "notFound": "Destination not found.",
+    "moodTitle": "Mood"
   },
   "region": {
     "subtitle": "Region",

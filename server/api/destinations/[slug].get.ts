@@ -67,7 +67,7 @@ export default defineEventHandler(async (event) => {
     ...destination,
     ...translation,
     // Parse JSON fields
-    moodTags: destination.moodTags ? JSON.parse(destination.moodTags) : null,
+    moodTags: destination.moodTags,
     detailJson: translation.detailJson
       ? JSON.parse(translation.detailJson)
       : null,

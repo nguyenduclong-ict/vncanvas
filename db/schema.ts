@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   sqliteTable,
   text,
@@ -11,11 +12,15 @@ export const destinations = sqliteTable("destinations", {
   slug: text("slug").notNull().unique(), // Unified Slug
   region: text("region").notNull(),
   province: text("province"),
-  category: text("category").notNull(),
-  moodTags: text("mood_tags"),
+  category: text("category", { mode: "json" }).$type<string[]>().notNull(), // JSON array of strings
+  moodTags: text("mood_tags", { mode: "json" }).$type<string[]>(),
   thumbnail: text("thumbnail"),
   coverImage: text("cover_image"),
   audioUrl: text("audio_url"),
+  isPublished: integer("is_published", { mode: "boolean" })
+    .default(false)
+    .notNull(),
+  sourceUrls: text("source_urls", { mode: "json" }).$type<string[]>(), // JSON array of strings
   createdAt: text("created_at"),
 });
 
@@ -33,7 +38,7 @@ export const destinationTranslations = sqliteTable(
     title: text("title").notNull(),
     shortDesc: text("short_desc"),
     longDesc: text("long_desc"),
-    detailJson: text("detail_json"),
+    detailJson: text("detail_json", { mode: "json" }).$type<any>(),
   },
   (table) => ({
     uniqueLang: uniqueIndex("dest_lang_idx").on(
@@ -42,6 +47,29 @@ export const destinationTranslations = sqliteTable(
     ),
   })
 );
+
+// API Keys table schema
+export const apiKeys = sqliteTable("api_keys", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  key: text("key").notNull(),
+  provider: text("provider").default("gemini").notNull(),
+  isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
+  usageCount: integer("usage_count").default(0).notNull(),
+  lastUsedAt: integer("last_used_at", { mode: "timestamp" }),
+  createdAt: text("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+// Admin Users table schema
+export const adminUsers = sqliteTable("admin_users", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  username: text("username").notNull().unique(),
+  password: text("password").notNull(), // Hashed
+  createdAt: text("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
 
 // Type exports
 export type Destination = typeof destinations.$inferSelect;

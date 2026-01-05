@@ -1,7 +1,7 @@
 <template>
-  <div
-    @click="navigate"
-    class="relative group cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-white/5 hover:border-vn-gold/50 transition-all duration-300 hover:-translate-y-1 h-full min-h-[160px]"
+  <NuxtLink
+    :to="localePath({ path: '/tim-kiem', query: { cat: category.key } })"
+    class="relative group cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-white/5 hover:border-vn-gold/50 transition-all duration-300 hover:-translate-y-1 h-full min-h-[160px] block"
   >
     <!-- Hover Gradient Background -->
     <div
@@ -24,27 +24,29 @@
       <span
         class="font-serif font-bold text-sm md:text-base text-gray-300 group-hover:text-white transition-colors"
       >
-        {{ category.name }}
+        {{ categoryLabel }}
       </span>
     </div>
-  </div>
+  </NuxtLink>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import BaseIcon from "@/components/atoms/BaseIcon.vue";
-import { useRouter } from "vue-router";
 
 const props = defineProps<{
   category: {
-    id: string;
-    name: string;
+    key: string;
+    label: { vi: string; en: string };
     icon: string;
   };
 }>();
 
-const router = useRouter();
+const localePath = useLocalePath();
+const { locale } = useI18n();
 
-const navigate = () => {
-  router.push({ path: "/tim-kiem", query: { cat: props.category.id } });
-};
+const categoryLabel = computed(() => {
+  const lang = locale.value as "vi" | "en";
+  return props.category.label[lang] || props.category.key;
+});
 </script>

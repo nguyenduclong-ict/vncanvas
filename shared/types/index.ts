@@ -3,9 +3,11 @@ export interface Destination {
   slug: string; // Unified slug
   region: "north" | "central" | "south";
   province?: string;
-  category: string;
+  category: string[];
   moodTags?: string[]; // Shared now
   audioUrl?: string; // Shared now
+  isPublished: boolean;
+  sourceUrls?: string[]; // JSON array
   thumbnail: string;
   coverImage?: string;
   createdAt?: string;
@@ -35,7 +37,7 @@ export interface RegionInfo {
 }
 
 export interface Category {
-  id: string;
-  name: string;
+  key: string;
+  label: { vi: string; en: string };
   icon: string;
 }

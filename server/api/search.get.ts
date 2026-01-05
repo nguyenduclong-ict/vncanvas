@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
       eq(destinationTranslations.languageCode, lang),
       eq(destinationTranslations.languageCode, "vi")
     ),
+    eq(destinations.isPublished, true),
   ];
 
   if (keyword) {

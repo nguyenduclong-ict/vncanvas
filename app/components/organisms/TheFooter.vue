@@ -10,16 +10,29 @@
         <p class="text-gray-500 text-sm">{{ $t("footer.tagline") }}</p>
       </div>
       <div class="flex gap-6 text-sm text-gray-400">
-        <NuxtLink to="/ve-chung-toi" class="hover:text-white transition">
+        <NuxtLink
+          :to="localePath('/ve-chung-toi')"
+          class="hover:text-white transition"
+        >
           {{ $t("footer.aboutUs") }}
         </NuxtLink>
-        <NuxtLink to="/lien-he" class="hover:text-white transition">
+        <NuxtLink
+          :to="localePath('/lien-he')"
+          class="hover:text-white transition"
+        >
           {{ $t("footer.contact") }}
         </NuxtLink>
-        <NuxtLink to="/chinh-sach" class="hover:text-white transition">
+        <NuxtLink
+          :to="localePath('/chinh-sach')"
+          class="hover:text-white transition"
+        >
           {{ $t("footer.policy") }}
         </NuxtLink>
       </div>
     </div>
   </footer>
 </template>
+
+<script setup lang="ts">
+const localePath = useLocalePath();
+</script>

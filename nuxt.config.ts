@@ -42,6 +42,10 @@ export default defineNuxtConfig({
     detectBrowserLanguage: false,
   },
 
+  routeRules: {
+    "/admin/**": { ssr: false, prerender: false },
+  },
+
   nitro: {
     preset: "cloudflare-pages",
     prerender: {

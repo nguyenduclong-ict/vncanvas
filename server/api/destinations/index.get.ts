@@ -31,7 +31,8 @@ export default defineEventHandler(async (event) => {
           eq(destinationTranslations.languageCode, "vi")
         )
       )
-    );
+    )
+    .where(eq(destinations.isPublished, true));
 
   // Process rows to pick the best translation for each destination
   const result = Object.values(

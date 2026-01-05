@@ -35,17 +35,17 @@
         </button>
         <button
           v-for="cat in categories"
-          :key="cat.id"
-          @click="selectedCat = cat.id"
+          :key="cat.key"
+          @click="selectedCat = cat.key"
           :class="[
             'px-4 py-2 rounded-full border text-sm transition flex items-center gap-2',
-            selectedCat === cat.id
+            selectedCat === cat.key
               ? 'bg-vn-gold text-black border-vn-gold'
               : 'bg-transparent border-white/20 text-gray-300 hover:border-white',
           ]"
         >
-          <BaseIcon :name="cat.icon" class="w-3 h-3" />
-          {{ $t(`categories.${cat.id}`) }}
+          <BaseIcon :name="cat.icon" class="w-4 h-4" />
+          {{ getCategoryLabel(cat.key) }}
         </button>
       </div>
 
@@ -113,7 +113,7 @@ import BaseInput from "@/components/atoms/BaseInput.vue";
 import BaseIcon from "@/components/atoms/BaseIcon.vue";
 import SectionHeading from "@/components/atoms/SectionHeading.vue";
 import DestinationGrid from "@/components/organisms/DestinationGrid.vue";
-import { useCategories, type Destination } from "@/composables/useAppData";
+import { useCategories } from "@/composables/useAppData";
 
 interface SearchResponse {
   data: Destination[];
@@ -127,7 +127,14 @@ interface SearchResponse {
 
 const route = useRoute();
 const router = useRouter();
+const { locale } = useI18n();
 const { data: categories } = await useCategories();
+
+const getCategoryLabel = (key: string) => {
+  const lang = locale.value as "vi" | "en";
+  const cat = categories.value?.find((c: any) => c.key === key);
+  return cat?.label[lang] || key;
+};
 
 const searchQuery = ref("");
 const selectedCat = ref((route.query.cat as string) || "all");

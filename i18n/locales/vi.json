@@ -48,7 +48,8 @@
     "bestTime": "Thời điểm lý tưởng",
     "transport": "Di chuyển",
     "tips": "Lời khuyên",
-    "notFound": "Không tìm thấy địa điểm."
+    "notFound": "Không tìm thấy địa điểm.",
+    "moodTitle": "Cảm xúc"
   },
   "region": {
     "subtitle": "Vùng Miền",

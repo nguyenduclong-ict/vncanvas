@@ -25,7 +25,7 @@
           {{ destination.title }}
         </h4>
         <span class="text-xs text-gray-500 uppercase tracking-wider">
-          {{ destination.region }}
+          {{ regionName }}
         </span>
       </div>
       <p class="text-gray-400 text-sm line-clamp-2 leading-relaxed">
@@ -37,26 +37,37 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useRouter } from "vue-router";
 import BaseTag from "@/components/atoms/BaseTag.vue";
-import { useCategories } from "@/composables/useAppData";
+import { CATEGORIES } from "~~/shared/constants/categories";
+import { REGIONS } from "~~/shared/constants/regions";
 
 const props = defineProps<{
   destination: any;
   showTag?: boolean;
 }>();
 
+const localePath = useLocalePath();
 const router = useRouter();
-const { data: categories } = useCategories();
+const { locale } = useI18n();
 
 const categoryName = computed(() => {
-  const cat = categories.value?.find(
-    (c) => c.id === props.destination.category
-  );
-  return cat ? cat.name : props.destination.category;
+  const lang = locale.value as "vi" | "en";
+  if (Array.isArray(props.destination.category)) {
+    const firstKey = props.destination.category[0];
+    const cat = CATEGORIES.find((c) => c.key === firstKey);
+    return cat?.label[lang] || firstKey;
+  }
+  const cat = CATEGORIES.find((c) => c.key === props.destination.category);
+  return cat?.label[lang] || props.destination.category;
+});
+
+const regionName = computed(() => {
+  const lang = locale.value as "vi" | "en";
+  const r = REGIONS.find((r) => r.key === props.destination.region);
+  return r?.label[lang] || props.destination.region;
 });
 
 const navigate = () => {
-  router.push(`/dia-diem/${props.destination.slug}`);
+  router.push(localePath(`/dia-diem/${props.destination.slug}`));
 };
 </script>

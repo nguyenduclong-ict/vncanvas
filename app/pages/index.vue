@@ -26,12 +26,19 @@
         <SectionHeading tag="h2" class="!mb-0">
           {{ $t("home.categoriesTitle") }}
         </SectionHeading>
-        <NuxtLink to="/tim-kiem" class="text-vn-gold text-sm hover:underline">
+        <NuxtLink
+          :to="localePath('/tim-kiem')"
+          class="text-vn-gold text-sm hover:underline"
+        >
           {{ $t("common.viewAll") }}
         </NuxtLink>
       </div>
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <CategoryCard v-for="cat in categories" :key="cat.id" :category="cat" />
+        <CategoryCard
+          v-for="cat in categories?.slice(0, 5)"
+          :key="cat.key"
+          :category="cat"
+        />
       </div>
     </section>
   </div>
@@ -46,6 +53,7 @@ import { useCategories } from "@/composables/useAppData";
 
 const { data: categories } = await useCategories();
 const { t } = useI18n();
+const localePath = useLocalePath();
 
 useSeoMeta({
   title: t("seo.home.title"),

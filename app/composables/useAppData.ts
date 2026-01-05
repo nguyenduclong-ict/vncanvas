@@ -3,19 +3,36 @@
 
 import type { Destination, RegionInfo, Category } from "~~/shared/types";
 
-export type { Destination, RegionInfo, Category };
-
 export const useDestinations = () => {
-  return useFetch<Destination[]>("/api/destinations");
+  const { locale } = useI18n();
+  return useFetch<Destination[]>("/api/destinations", {
+    query: {
+      lang: locale,
+    },
+    watch: [locale],
+  });
 };
 
 export const useDestination = (slug: string | Ref<string>) => {
+  const { locale } = useI18n();
   const slugValue = isRef(slug) ? slug : ref(slug);
-  return useFetch<Destination>(() => `/api/destinations/${slugValue.value}`);
+
+  return useFetch<Destination>(() => `/api/destinations/${slugValue.value}`, {
+    query: {
+      lang: locale,
+    },
+    watch: [locale], // Refetch when locale changes
+  });
 };
 
 export const useRegions = () => {
-  return useFetch<Record<string, RegionInfo>>("/api/regions");
+  const { locale } = useI18n();
+  return useFetch<Record<string, RegionInfo>>("/api/regions", {
+    query: {
+      lang: locale,
+    },
+    watch: [locale],
+  });
 };
 
 export const useCategories = () => {

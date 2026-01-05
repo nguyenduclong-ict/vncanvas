@@ -1,6 +1,6 @@
 // Search API - query destinations from database with filters and pagination
 import { and, count, eq, like, or } from "drizzle-orm";
-import { destinations } from "~~/db/schema";
+import { destinations, destinationTranslations } from "~~/db/schema";
 
 export default defineEventHandler(async (event) => {
   const db = useDb(event);
@@ -8,19 +8,26 @@ export default defineEventHandler(async (event) => {
 
   const keyword = (query.q as string) || "";
   const category = (query.category as string) || "all";
+  const lang = (query.lang as string) || "vi";
   const page = parseInt(query.page as string) || 1;
   const limit = parseInt(query.limit as string) || 9;
   const offset = (page - 1) * limit;
 
-  // Build dynamic conditions
-  const conditions = [];
+  // Conditions
+  const conditions = [
+    // Language: requested OR default
+    or(
+      eq(destinationTranslations.languageCode, lang),
+      eq(destinationTranslations.languageCode, "vi")
+    ),
+  ];
 
   if (keyword) {
     conditions.push(
       or(
-        like(destinations.title, `%${keyword}%`),
-        like(destinations.shortDesc, `%${keyword}%`),
-        like(destinations.longDesc, `%${keyword}%`)
+        like(destinationTranslations.title, `%${keyword}%`),
+        like(destinationTranslations.shortDesc, `%${keyword}%`),
+        like(destinationTranslations.longDesc, `%${keyword}%`)
       )
     );
   }
@@ -29,14 +36,22 @@ export default defineEventHandler(async (event) => {
     conditions.push(eq(destinations.category, category));
   }
 
-  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+  const whereClause = and(
+    eq(destinationTranslations.destinationId, destinations.id),
+    ...conditions
+  );
 
   // Get total count
   const countResult = await db
     .select({ total: count() })
     .from(destinations)
+    .innerJoin(
+      destinationTranslations,
+      eq(destinations.id, destinationTranslations.destinationId)
+    ) // Explicit inner join for count
     .where(whereClause)
     .get();
+
   const total = countResult?.total || 0;
 
   // Get paginated results
@@ -44,15 +59,21 @@ export default defineEventHandler(async (event) => {
     .select({
       id: destinations.id,
       slug: destinations.slug,
-      title: destinations.title,
       region: destinations.region,
       category: destinations.category,
-      shortDesc: destinations.shortDesc,
       thumbnail: destinations.thumbnail,
+      // Translation fields
+      lang: destinationTranslations.languageCode,
+      title: destinationTranslations.title,
+      shortDesc: destinationTranslations.shortDesc,
     })
     .from(destinations)
+    .innerJoin(
+      destinationTranslations,
+      eq(destinations.id, destinationTranslations.destinationId)
+    )
     .where(whereClause)
-    .orderBy(destinations.id)
+    // .orderBy(destinations.id) // Ordering might be ambiguous with duplicates, but okay for now
     .limit(limit)
     .offset(offset);
 

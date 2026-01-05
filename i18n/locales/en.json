@@ -82,6 +82,65 @@
     "central": "Central",
     "south": "South"
   },
+  "regionsData": {
+    "north": {
+      "name": "Northern Vietnam",
+      "slogan": "Thousand years of civilization & Natural wonders",
+      "description": "The cultural cradle of Vietnam with the thousand-year-old capital Hanoi, majestic Northwest mountains, and the wonder of Ha Long Bay.",
+      "features": {
+        "weather": {
+          "title": "Weather",
+          "text": "Tropical monsoon climate with a cold winter. Four distinct seasons: Spring - Summer - Autumn - Winter."
+        },
+        "people": {
+          "title": "People",
+          "text": "Elegant, sophisticated, valuing traditional etiquette and hospitality."
+        },
+        "geography": {
+          "title": "Geography",
+          "text": "Diverse terrain: high mountains in the North, fertile Red River Delta."
+        }
+      }
+    },
+    "central": {
+      "name": "Central Vietnam",
+      "slogan": "Heritage Road & Blue Sea",
+      "description": "A land full of sun and wind, a convergence of world cultural heritage sites and the most beautiful beaches.",
+      "features": {
+        "weather": {
+          "title": "Weather",
+          "text": "Harsher climate, divided into distinct rainy and dry seasons."
+        },
+        "people": {
+          "title": "People",
+          "text": "Honest, sincere, hardworking, resilient, and hospitable."
+        },
+        "geography": {
+          "title": "Geography",
+          "text": "Narrow terrain, \"backing against Truong Son mountains, facing the East Sea\"."
+        }
+      }
+    },
+    "south": {
+      "name": "Southern Vietnam",
+      "slogan": "Land of Generosity & Rivers",
+      "description": "Dynamic, modern land blending with the rustic charm of the Western river region.",
+      "features": {
+        "weather": {
+          "title": "Weather",
+          "text": "Sub-equatorial climate, warm all year round. Only two seasons: rainy and dry."
+        },
+        "people": {
+          "title": "People",
+          "text": "Generous, liberal, open-minded, and friendly. Optimistic lifestyle."
+        },
+        "geography": {
+          "title": "Geography",
+          "text": "Mekong Delta crisscrossed with rivers and canals."
+        }
+      }
+    }
+  },
   "seo": {
     "home": {
       "title": "Vietnam Canvas - Discover Vietnam",

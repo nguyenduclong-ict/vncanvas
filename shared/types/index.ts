@@ -1,23 +1,26 @@
 export interface Destination {
   id: number;
-  slug: string;
-  title: string;
+  slug: string; // Unified slug
   region: "north" | "central" | "south";
   province?: string;
   category: string;
-  shortDesc: string;
-  longDesc?: string;
+  moodTags?: string[]; // Shared now
+  audioUrl?: string; // Shared now
   thumbnail: string;
   coverImage?: string;
-  audioUrl?: string;
-  moodTags?: string[];
+  createdAt?: string;
+
+  // Localized fields (Merged from translation)
+  languageCode: string; // The language of the content below
+  title: string;
+  shortDesc: string;
+  longDesc?: string;
   detailJson?: {
     bestTime?: string;
     transport?: string;
     tips?: string;
     sections?: Array<{ type: string; content: string; image?: string }>;
   };
-  createdAt?: string;
 }
 
 export interface RegionInfo {

@@ -4,15 +4,23 @@
       <h3
         class="text-xl font-serif font-bold mb-6 border-b border-white/10 pb-4 text-white"
       >
-        Thông tin cần biết
+        {{ $t("detail.infoTitle") }}
       </h3>
       <InfoItem
         icon="calendar"
-        label="Thời điểm lý tưởng"
+        :label="$t('detail.bestTime')"
         :text="details.bestTime"
       />
-      <InfoItem icon="plane" label="Di chuyển" :text="details.transport" />
-      <InfoItem icon="lightbulb" label="Lời khuyên" contentClass="italic">
+      <InfoItem
+        icon="plane"
+        :label="$t('detail.transport')"
+        :text="details.transport"
+      />
+      <InfoItem
+        icon="lightbulb"
+        :label="$t('detail.tips')"
+        contentClass="italic"
+      >
         "{{ details.tips }}"
       </InfoItem>
     </div>

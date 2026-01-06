@@ -53,7 +53,11 @@ export default defineEventHandler(async (event) => {
   }
 
   if (search) {
-    conditions.push(like(destinations.slug, `%${search}%`));
+    conditions.push(
+      sql`(${destinations.slug} LIKE ${"%" + search + "%"} OR ${
+        destinations.name
+      } LIKE ${"%" + search + "%"})`
+    );
   }
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;

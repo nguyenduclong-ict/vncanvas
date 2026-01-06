@@ -71,6 +71,36 @@ const deleteKey = async (id: number) => {
     alert("Failed to delete");
   }
 };
+
+// AI Settings
+const maxParallelJobs = ref(3);
+const isSavingSettings = ref(false);
+
+const loadAiSettings = async () => {
+  try {
+    const result = await $fetch<any>("/api/admin/ai-settings");
+    maxParallelJobs.value = result.maxParallelJobs;
+  } catch (e) {
+    console.error("Failed to load AI settings:", e);
+  }
+};
+
+const saveAiSettings = async () => {
+  isSavingSettings.value = true;
+  try {
+    await $fetch("/api/admin/ai-settings", {
+      method: "PUT",
+      body: { maxParallelJobs: maxParallelJobs.value },
+    });
+    alert("Settings saved!");
+  } catch (e) {
+    alert("Failed to save settings");
+  } finally {
+    isSavingSettings.value = false;
+  }
+};
+
+onMounted(loadAiSettings);
 </script>
 
 <template>
@@ -228,5 +258,34 @@ const deleteKey = async (id: number) => {
       :total-items="totalItems"
       @update:current-page="(p) => (page = p)"
     />
+
+    <!-- AI Settings Section -->
+    <div class="mt-8 border-t pt-6">
+      <h2 class="text-2xl font-bold mb-4">AI Generation Settings</h2>
+      <div class="bg-white rounded shadow p-6 max-w-md">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Max Parallel Jobs (1-10)
+          </label>
+          <input
+            v-model.number="maxParallelJobs"
+            type="number"
+            min="1"
+            max="10"
+            class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-emerald-500 focus:border-emerald-500 p-2 border"
+          />
+          <p class="text-sm text-gray-500 mt-1">
+            Number of AI generation jobs to run in parallel.
+          </p>
+        </div>
+        <button
+          @click="saveAiSettings"
+          :disabled="isSavingSettings"
+          class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+        >
+          {{ isSavingSettings ? "Saving..." : "Save Settings" }}
+        </button>
+      </div>
+    </div>
   </div>
 </template>

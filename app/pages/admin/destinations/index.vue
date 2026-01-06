@@ -279,6 +279,21 @@ async function fetchQueueStatus() {
   }
 }
 
+async function stopQueue() {
+  if (
+    !confirm(
+      "Are you sure you want to stop the queue and clear all pending jobs?"
+    )
+  )
+    return;
+  try {
+    await adminFetch("/api/admin/ai-queue", { method: "DELETE" });
+    await fetchQueueStatus();
+  } catch (error) {
+    console.error("Failed to stop queue:", error);
+  }
+}
+
 onMounted(() => {
   // Initial fetch
   fetchQueueStatus();
@@ -465,14 +480,23 @@ onUnmounted(() => {
           </span>
         </span>
       </div>
-      <div class="text-sm text-blue-700">
-        <span>Queue: {{ genProgress.summary.queued }}</span>
-        <span class="mx-2">•</span>
-        <span>Processing: {{ genProgress.summary.processing }}</span>
-        <span class="mx-2">•</span>
-        <span>Completed: {{ genProgress.summary.completed }}</span>
-        <span class="mx-2">•</span>
-        <span>Errors: {{ genProgress.summary.error }}</span>
+      <div class="text-sm text-blue-700 flex items-center justify-between">
+        <div>
+          <span>Queue: {{ genProgress.summary.queued }}</span>
+          <span class="mx-2">•</span>
+          <span>Processing: {{ genProgress.summary.processing }}</span>
+          <span class="mx-2">•</span>
+          <span>Completed: {{ genProgress.summary.completed }}</span>
+          <span class="mx-2">•</span>
+          <span>Errors: {{ genProgress.summary.error }}</span>
+        </div>
+        <button
+          v-if="genProgress.summary.queued > 0"
+          @click="stopQueue"
+          class="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition-colors"
+        >
+          Stop Queue
+        </button>
       </div>
     </div>
 

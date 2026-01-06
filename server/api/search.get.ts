@@ -26,6 +26,7 @@ export default defineEventHandler(async (event) => {
   if (keyword) {
     conditions.push(
       or(
+        like(destinations.name, `%${keyword}%`),
         like(destinationTranslations.title, `%${keyword}%`),
         like(destinationTranslations.shortDesc, `%${keyword}%`),
         like(destinationTranslations.longDesc, `%${keyword}%`)

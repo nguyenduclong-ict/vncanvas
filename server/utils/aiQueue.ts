@@ -18,6 +18,7 @@ interface QueueState {
   items: Map<string, QueueItem>;
   processingSlug: string | null;
   isProcessing: boolean;
+  activeWorkers: number;
 }
 
 // Global queue state (persists across requests in the same worker)
@@ -25,7 +26,19 @@ const queueState: QueueState = {
   items: new Map(),
   processingSlug: null,
   isProcessing: false,
+  activeWorkers: 0,
 };
+
+// Settings
+let maxParallelJobs = 3; // Default to 3 parallel jobs
+
+export function getMaxParallelJobs(): number {
+  return maxParallelJobs;
+}
+
+export function setMaxParallelJobs(value: number): void {
+  maxParallelJobs = Math.max(1, Math.min(10, value)); // Clamp between 1-10
+}
 
 // Track if processor is running
 let processorRunning = false;
@@ -148,6 +161,18 @@ export function clearFinished(): void {
   }
 }
 
+// Clear only pending (queued) items - keeps processing/completed/error
+export function clearPendingQueue(): number {
+  let count = 0;
+  for (const [slug, item] of queueState.items) {
+    if (item.status === "queued") {
+      queueState.items.delete(slug);
+      count++;
+    }
+  }
+  return count;
+}
+
 // Clear all items
 export function clearAll(): void {
   queueState.items.clear();
@@ -173,73 +198,86 @@ export function startProcessor(db: any): void {
   }
 }
 
-// Background queue processor
+// Background queue processor - spawns parallel workers
 async function runProcessor() {
   if (processorRunning || !dbInstance) return;
 
   processorRunning = true;
   setProcessing(true);
 
-  while (hasQueuedItems()) {
-    const slug = getNextFromQueue();
-    if (!slug) break;
+  // Keep spawning workers while there are queued items and capacity
+  while (hasQueuedItems() || queueState.activeWorkers > 0) {
+    // Spawn workers up to maxParallelJobs
+    while (queueState.activeWorkers < maxParallelJobs && hasQueuedItems()) {
+      const slug = getNextFromQueue();
+      if (!slug) break;
 
-    markProcessing(slug);
-
-    // Update DB status to 'processing'
-    try {
-      if (dbInstance) {
-        await dbInstance
-          .update(destinations)
-          .set({ aiGenStatus: "processing" })
-          .where(eq(destinations.slug, slug));
-      }
-    } catch (e) {
-      console.error(
-        `[AI Queue] Failed to update status to processing for ${slug}`,
-        e
-      );
+      queueState.activeWorkers++;
+      // Start worker without awaiting (parallel)
+      processWorker(slug).finally(() => {
+        queueState.activeWorkers--;
+      });
     }
 
-    try {
-      await processDestination(dbInstance, slug);
-      markCompleted(slug);
-
-      // Update DB status to 'done'
-      if (dbInstance) {
-        await dbInstance
-          .update(destinations)
-          .set({ aiGenStatus: "done" })
-          .where(eq(destinations.slug, slug));
-      }
-
-      console.log(`[AI Queue] Completed: ${slug}`);
-    } catch (error: any) {
-      console.error(`[AI Queue] Error processing ${slug}:`, error);
-      markError(slug, error.message || "Unknown error");
-
-      // Update DB status to 'error'
-      if (dbInstance) {
-        try {
-          await dbInstance
-            .update(destinations)
-            .set({ aiGenStatus: "error" })
-            .where(eq(destinations.slug, slug));
-        } catch (updateError) {
-          console.error(
-            `[AI Queue] Failed to update status to error for ${slug}`,
-            updateError
-          );
-        }
-      }
-    }
-
-    // Small delay between processing to avoid API rate limits
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Wait a bit before checking again
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
   processorRunning = false;
   setProcessing(false);
+}
+
+// Individual worker that processes a single destination
+async function processWorker(slug: string) {
+  markProcessing(slug);
+
+  // Update DB status to 'processing'
+  try {
+    if (dbInstance) {
+      await dbInstance
+        .update(destinations)
+        .set({ aiGenStatus: "processing" })
+        .where(eq(destinations.slug, slug));
+    }
+  } catch (e) {
+    console.error(
+      `[AI Queue] Failed to update status to processing for ${slug}`,
+      e
+    );
+  }
+
+  try {
+    await processDestination(dbInstance, slug);
+    markCompleted(slug);
+
+    // Update DB status to 'done'
+    if (dbInstance) {
+      await dbInstance
+        .update(destinations)
+        .set({ aiGenStatus: "done" })
+        .where(eq(destinations.slug, slug));
+    }
+
+    console.log(`[AI Queue] Completed: ${slug}`);
+  } catch (error: any) {
+    console.error(`[AI Queue] Error processing ${slug}:`, error);
+    markError(slug, error.message || "Unknown error");
+
+    // Update DB status to 'error'
+    if (dbInstance) {
+      try {
+        await dbInstance
+          .update(destinations)
+          .set({ aiGenStatus: "error" })
+          .where(eq(destinations.slug, slug));
+      } catch (updateError) {
+        console.error(
+          `[AI Queue] Failed to update status to error for ${slug}`,
+          updateError
+        );
+      }
+    }
+  }
 }
 
 // Process a single destination
@@ -313,9 +351,13 @@ async function processDestination(db: any, slug: string) {
               if (newPath) {
                 section.image = newPath;
                 imageCount++;
+              } else {
+                // Download returned null, set image to empty
+                section.image = "";
               }
             } catch (e) {
               console.error("Failed to download section image:", section.image);
+              section.image = ""; // Clear image on error
             }
           }
         }

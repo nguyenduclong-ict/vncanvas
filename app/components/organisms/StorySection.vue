@@ -1,21 +1,15 @@
 <template>
   <div class="my-8 space-y-12">
-    <div
-      v-for="(section, idx) in story"
-      :key="idx"
-      class="bg-stone-900 border border-white/5 rounded-2xl overflow-hidden"
-    >
+    <div v-for="(section, idx) in story" :key="idx">
       <img
         v-if="section.image"
         :src="section.image"
-        class="w-full h-64 md:h-96 object-cover"
+        class="w-full h-64 md:h-96 object-cover rounded-lg mb-4"
       />
-      <div class="p-6">
-        <div
-          class="text-lg text-gray-200 whitespace-pre-line leading-relaxed"
-          v-html="formatText(section.content)"
-        ></div>
-      </div>
+      <div
+        class="text-lg text-gray-200 whitespace-pre-line leading-relaxed"
+        v-html="formatText(section.content)"
+      ></div>
     </div>
   </div>
 </template>

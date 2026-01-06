@@ -8,6 +8,9 @@ export default defineEventHandler(async (event) => {
 
   const keyword = (query.q as string) || "";
   const category = (query.category as string) || "all";
+  const region = (query.region as string) || "";
+  const province = (query.province as string) || "";
+  const moodTags = (query.moodTags as string) || "";
   const lang = (query.lang as string) || "vi";
   const page = parseInt(query.page as string) || 1;
   const limit = parseInt(query.limit as string) || 9;
@@ -35,7 +38,26 @@ export default defineEventHandler(async (event) => {
   }
 
   if (category && category !== "all") {
-    conditions.push(eq(destinations.category, category.split(",")));
+    conditions.push(like(destinations.category, `%${category}%`));
+  }
+
+  if (region) {
+    conditions.push(eq(destinations.region, region));
+  }
+
+  if (province) {
+    conditions.push(like(destinations.province, `%${province}%`));
+  }
+
+  if (moodTags) {
+    // Search for any of the mood tags
+    const tags = moodTags.split(",");
+    const moodConditions = tags.map((tag) =>
+      like(destinations.moodTags, `%${tag.trim()}%`)
+    );
+    if (moodConditions.length > 0) {
+      conditions.push(or(...moodConditions));
+    }
   }
 
   const whereClause = and(

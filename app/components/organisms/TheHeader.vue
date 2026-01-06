@@ -86,7 +86,10 @@
 
     <!-- Mobile Top Bar -->
     <div
-      class="md:hidden fixed top-0 w-full z-40 bg-stone-950/90 backdrop-blur border-b border-white/5 p-4 flex justify-between items-center"
+      :class="[
+        'md:hidden fixed top-0 w-full z-40 p-4 flex justify-between items-center transition-all duration-300',
+        isScrolled && 'bg-stone-950/90 backdrop-blur border-b border-white/5',
+      ]"
     >
       <NuxtLink :to="localePath('/')" class="cursor-pointer">
         <img src="/logo.svg" alt="Vietnam Canvas" class="h-8 w-auto" />
@@ -127,25 +130,31 @@
       <NuxtLink
         :to="localePath('/')"
         exact-active-class="text-white bg-white/10 rounded-lg"
-        class="flex flex-col items-center p-2 text-gray-400 transition w-16"
+        class="flex flex-col items-center p-2 text-gray-400 transition w-24"
       >
         <BaseIcon name="home" class="w-5 h-5 mb-1" />
-        <span class="text-[10px] uppercase">{{ $t("common.home") }}</span>
+        <span class="text-[10px] uppercase text-center">
+          {{ $t("common.home") }}
+        </span>
       </NuxtLink>
       <NuxtLink
         :to="localePath('/tim-kiem')"
         active-class="text-white bg-white/10 rounded-lg"
-        class="flex flex-col items-center p-2 text-gray-400 transition w-16"
+        class="flex flex-col items-center p-2 text-gray-400 transition w-24"
       >
         <BaseIcon name="search" class="w-5 h-5 mb-1" />
-        <span class="text-[10px] uppercase">{{ $t("common.search") }}</span>
+        <span class="text-[10px] uppercase text-center">
+          {{ $t("common.search") }}
+        </span>
       </NuxtLink>
       <button
-        class="flex flex-col items-center p-2 text-gray-400 transition w-16"
+        class="flex flex-col items-center p-2 text-gray-400 transition w-24"
         @click="showMenu = true"
       >
         <BaseIcon name="menu" class="w-5 h-5 mb-1" />
-        <span class="text-[10px] uppercase">{{ $t("header.menu") }}</span>
+        <span class="text-[10px] uppercase text-center">
+          {{ $t("header.menu") }}
+        </span>
       </button>
     </nav>
 

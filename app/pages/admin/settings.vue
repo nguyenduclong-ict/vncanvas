@@ -33,7 +33,7 @@ const addKey = async () => {
   if (!newKey.value) return;
   isAdding.value = true;
   try {
-    const res = await useAdminFetch<{ count: number }>("/api/admin/keys", {
+    const res = await adminFetch<{ count: number }>("/api/admin/keys", {
       method: "POST",
       body: { key: newKey.value },
     });

@@ -10,7 +10,9 @@
     "viewMore": "View More",
     "backToHome": "Back to Home",
     "readTime": "min read",
-    "all": "All"
+    "all": "All",
+    "clear": "Clear",
+    "apply": "Apply"
   },
   "header": {
     "brand": "VNCANVAS",
@@ -40,7 +42,14 @@
     "title": "Search Your Journey",
     "placeholder": "Enter destination name, keywords...",
     "noResults": "No destinations found.",
-    "showingResults": "Found {count} results"
+    "showingResults": "Found {count} results",
+    "filter": "Filter",
+    "filters": "Filters",
+    "region": "Region",
+    "province": "Province",
+    "provincePlaceholder": "Select province...",
+    "moodTags": "Mood Tags",
+    "allProvinces": "All Provinces"
   },
   "detail": {
     "beautyTitle": "Beauty Through Every Angle",

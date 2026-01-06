@@ -10,7 +10,9 @@
     "viewMore": "Xem thêm",
     "backToHome": "Quay về trang chủ",
     "readTime": "phút đọc",
-    "all": "Tất cả"
+    "all": "Tất cả",
+    "clear": "Xóa",
+    "apply": "Áp dụng"
   },
   "header": {
     "brand": "VNCANVAS",
@@ -40,7 +42,14 @@
     "title": "Tìm Kiếm Hành Trình",
     "placeholder": "Nhập tên địa điểm, từ khóa...",
     "noResults": "Không tìm thấy địa điểm nào phù hợp.",
-    "showingResults": "Tìm thấy {count} kết quả"
+    "showingResults": "Tìm thấy {count} kết quả",
+    "filter": "Lọc",
+    "filters": "Bộ lọc",
+    "region": "Miền",
+    "province": "Tỉnh thành",
+    "provincePlaceholder": "Chọn tỉnh thành...",
+    "moodTags": "Cảm xúc",
+    "allProvinces": "Tất cả tỉnh thành"
   },
   "detail": {
     "beautyTitle": "Vẻ đẹp qua từng góc nhìn",

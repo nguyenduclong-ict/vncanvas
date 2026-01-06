@@ -5,6 +5,7 @@ import { execSync } from "child_process";
 // Interface matching the new prompt output
 interface AiDestination {
   slug: string;
+  name: string;
   region: "north" | "central" | "south";
   province?: string;
   category: string;
@@ -59,12 +60,15 @@ const main = () => {
     const moodTags = toJson(dest.moodTags, []);
     const sourceUrls = toJson(dest.sourceUrls, []);
 
+    // Use Vietnamese title as name, fallback to English title, then slug
+    const name = dest.name;
+
     // 1. Insert Destination
     sqlOutput += `
-INSERT INTO destinations (slug, region, province, category, mood_tags, source_urls, is_published, created_at)
-VALUES ('${slug}', '${region}', '${province}', '${category}', '${moodTags}', '${sourceUrls}', 0, datetime('now'))
+INSERT INTO destinations (slug, name, region, province, category, mood_tags, source_urls, is_published, created_at)
+VALUES ('${slug}', '${name}', '${region}', '${province}', '${category}', '${moodTags}', '${sourceUrls}', 0, datetime('now'))
 ON CONFLICT(slug) DO UPDATE SET 
-region=excluded.region, province=excluded.province, category=excluded.category, mood_tags=excluded.mood_tags, source_urls=excluded.source_urls;
+name=excluded.name, region=excluded.region, province=excluded.province, category=excluded.category, mood_tags=excluded.mood_tags, source_urls=excluded.source_urls;
 `;
 
     // 2. Insert Translations

@@ -11,13 +11,12 @@ const router = useRouter();
 const handleLogin = async () => {
   error.value = "";
   try {
-    const res = await $fetch("/api/auth/login", {
+    await $fetch("/api/auth/login", {
       method: "POST",
       body: { username: username.value, password: password.value },
     });
-    if (res.success) {
-      router.push("/admin/destinations");
-    }
+    // Successful login
+    router.push("/admin/destinations");
   } catch (e: any) {
     error.value = e.data?.message || "Login failed";
   }

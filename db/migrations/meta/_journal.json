@@ -8,6 +8,20 @@
       "when": 1767642784135,
       "tag": "0000_lean_dark_beast",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1767667623236,
+      "tag": "0001_fixed_mimic",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1767685369799,
+      "tag": "0002_huge_zombie",
+      "breakpoints": true
     }
   ]
 }

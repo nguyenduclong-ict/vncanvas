@@ -10,6 +10,7 @@ import {
 export const destinations = sqliteTable("destinations", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   slug: text("slug").notNull().unique(), // Unified Slug
+  name: text("name"), // Display name (usually Vietnamese title)
   region: text("region").notNull(),
   province: text("province"),
   category: text("category", { mode: "json" }).$type<string[]>().notNull(), // JSON array of strings
@@ -21,6 +22,7 @@ export const destinations = sqliteTable("destinations", {
     .default(false)
     .notNull(),
   sourceUrls: text("source_urls", { mode: "json" }).$type<string[]>(), // JSON array of strings
+  aiGenStatus: text("ai_gen_status"), // 'processing', 'done', 'error'
   createdAt: text("created_at"),
 });
 

@@ -1,6 +1,10 @@
-import { compareSync } from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { adminUsers } from "~~/db/schema";
+import {
+  createAccessToken,
+  createRefreshToken,
+  verifyPassword,
+} from "../../utils/auth";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
@@ -9,7 +13,7 @@ export default defineEventHandler(async (event) => {
   if (!username || !password) {
     throw createError({
       statusCode: 400,
-      message: "Username and password required",
+      message: "Username and password are required",
     });
   }
 
@@ -18,20 +22,44 @@ export default defineEventHandler(async (event) => {
     where: eq(adminUsers.username, username),
   });
 
-  if (!user) {
-    throw createError({ statusCode: 401, message: "Invalid credentials" });
+  if (!user || !verifyPassword(password, user.password)) {
+    throw createError({
+      statusCode: 401,
+      message: "Invalid credentials",
+    });
   }
 
-  const isValid = compareSync(password, user.password);
-  if (!isValid) {
-    throw createError({ statusCode: 401, message: "Invalid credentials" });
-  }
+  // Create tokens
+  const accessToken = await createAccessToken({
+    id: user.id,
+    username: user.username,
+  });
+  const refreshToken = await createRefreshToken({
+    id: user.id,
+    username: user.username,
+  });
 
-  // Set Cookie
-  setCookie(event, "auth_token", user.id.toString(), {
-    httpOnly: false, // Allow JS access for simple expiration check if needed, strictly should be true
-    maxAge: 60 * 60 * 24, // 1 day
-    path: "/",
+  // Set cookies
+  setCookie(event, "access_token", accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 15 * 60, // 15 minutes
+  });
+
+  setCookie(event, "refresh_token", refreshToken, {
+    httpOnly: true, // IMPORTANT: HttpOnly
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60, // 7 days
+  });
+
+  // Public cookie to let client know we are logged in
+  setCookie(event, "is_logged_in", "true", {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60,
   });
 
   return { success: true };

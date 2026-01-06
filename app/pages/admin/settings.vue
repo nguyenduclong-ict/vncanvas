@@ -17,7 +17,7 @@ interface ApiKey {
 }
 
 const page = ref(1);
-const { data: response, refresh } = await useFetch("/api/admin/keys", {
+const { data: response, refresh } = await useAdminFetch("/api/admin/keys", {
   query: { page },
 });
 
@@ -33,7 +33,7 @@ const addKey = async () => {
   if (!newKey.value) return;
   isAdding.value = true;
   try {
-    const res = await $fetch<{ count: number }>("/api/admin/keys", {
+    const res = await useAdminFetch<{ count: number }>("/api/admin/keys", {
       method: "POST",
       body: { key: newKey.value },
     });
@@ -50,7 +50,7 @@ const addKey = async () => {
 
 const toggleActive = async (key: any) => {
   try {
-    await $fetch(`/api/admin/keys/${key.id}`, {
+    await useAdminFetch(`/api/admin/keys/${key.id}`, {
       method: "PUT",
       body: { isActive: !key.isActive }, // Optimistic toggle
     });
@@ -63,7 +63,7 @@ const toggleActive = async (key: any) => {
 const deleteKey = async (id: number) => {
   if (!confirm("Delete this key?")) return;
   try {
-    await $fetch(`/api/admin/keys/${id}`, {
+    await useAdminFetch(`/api/admin/keys/${id}`, {
       method: "DELETE",
     });
     refresh();

@@ -5,10 +5,13 @@ import { getNextGeminiKey, updateKeyUsage } from "./keyRotator";
 export const generateDestinationContent = async (
   db: any,
   contextText: string,
-  imageUrls: string[]
+  destName: string,
+  allImages?: string[]
 ) => {
   const apiKey = await getNextGeminiKey(db);
   if (!apiKey) throw new Error("Missing Gemini API Key");
+
+  console.log(`Using key ...${apiKey.slice(-6)}`);
 
   const ai = new GoogleGenAI({ apiKey });
 
@@ -27,25 +30,26 @@ export const generateDestinationContent = async (
     truncatedText = contextText.slice(0, safeCharLimit) + "...[TRUNCATED]";
   }
 
-  const allowedMoods = MOOD_TAGS.map((m) => `"${m.key}"`).join(", ");
+  console.log("Total input tokens: ", totalTokens);
+  console.log("Images count: ", allImages?.length);
+  console.log(allImages);
 
   const prompt = `
     You are an expert travel editor for a high-end travel website about Vietnam ("Vietnam Canvas").
     Your style is cinematic, emotional, inspiring, yet informative and practical.
     
-    Based on the following raw text crawled from the internet, create a comprehensive article for a destination.
-    Raw Text:
+    Based on the following Markdown content crawled from the internet, create a comprehensive article for a destination: "${destName}".
+    The content contains text with embedded images in Markdown format like ![alt](url). Use these images in your response.
+    
+    Crawled Content:
     """${truncatedText}"""
-
-    Available Image URLs:
-    ${JSON.stringify(imageUrls)}
 
     TASKS:
     1. Synthesize the info into a structured JSON for this destination.
-    2. Select the best 5-10 images from the provided list that are high quality and relevant.
+    2. Select the best 5-10 images from the embedded images that are high quality and relevant.
     3. Generate content in TWO languages: Vietnamese (vi) and English (en).
-    4. For 'sections' in detail_json: Create 5-20 distinct sections that form the main body of the article. Each section must have substantial content. Assign a relevant image from the selected list to sections where appropriate.
-    5. Select 3-5 mood tags strictly from this list: [${allowedMoods}].
+    4. For 'sections' in detail_json: Create 5-20 distinct sections that form the main body of the article. Each section must have substantial content. Assign relevant images from the crawled content to sections.
+    5. Ensure that images assigned to sections are UNIQUE. Do not use the same image in multiple sections.
     6. FORMATTING RULES for 'bestTime', 'transport', 'tips':
        - Use line breaks (\n) to separate distinct ideas.
        - You can use **bold text** for emphasis or key phrases.
@@ -55,7 +59,6 @@ export const generateDestinationContent = async (
 
     OUTPUT JSON FORMAT:
     {
-      "mood_tags": ["tag1", "tag2"],
       "selected_images": ["url1", "url2", ...],
       "vi": {
         "title": "...",
@@ -98,6 +101,9 @@ export const generateDestinationContent = async (
     - Do not use Markdown code blocks.
   `;
 
+  // Update key usage stats
+  await updateKeyUsage(db, apiKey);
+
   // New SDK generateContent
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash",
@@ -115,9 +121,6 @@ export const generateDestinationContent = async (
     .replace(/```json/g, "")
     .replace(/```/g, "")
     .trim();
-
-  // Update key usage stats
-  await updateKeyUsage(db, apiKey);
 
   return JSON.parse(cleanText);
 };

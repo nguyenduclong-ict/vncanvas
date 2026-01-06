@@ -1,4 +1,4 @@
-import { desc, eq, sql, like, and } from "drizzle-orm";
+import { desc, eq, sql, like, and, isNull } from "drizzle-orm";
 import { destinations, destinationTranslations } from "~~/db/schema";
 
 export default defineEventHandler(async (event) => {
@@ -11,6 +11,8 @@ export default defineEventHandler(async (event) => {
   const region = query.region as string | undefined;
   const category = query.category as string | undefined;
   const status = query.status as string | undefined;
+  const aiStatus = query.aiStatus as string | undefined;
+  const missingLang = query.missingLang as string | undefined;
   const search = query.q as string | undefined;
 
   const db = useDb(event);
@@ -30,6 +32,24 @@ export default defineEventHandler(async (event) => {
     conditions.push(eq(destinations.isPublished, true));
   } else if (status === "draft") {
     conditions.push(eq(destinations.isPublished, false));
+  }
+
+  if (aiStatus === "processing") {
+    conditions.push(eq(destinations.aiGenStatus, "processing"));
+  } else if (aiStatus === "done") {
+    conditions.push(eq(destinations.aiGenStatus, "done"));
+  } else if (aiStatus === "error") {
+    conditions.push(eq(destinations.aiGenStatus, "error"));
+  } else if (aiStatus === "not_generated") {
+    conditions.push(isNull(destinations.aiGenStatus));
+  }
+
+  if (missingLang) {
+    conditions.push(sql`NOT EXISTS (
+      SELECT 1 FROM destination_translations 
+      WHERE destination_id = destinations.id 
+      AND language_code = ${missingLang}
+    )`);
   }
 
   if (search) {
@@ -54,8 +74,10 @@ export default defineEventHandler(async (event) => {
     .select({
       id: destinations.id,
       slug: destinations.slug,
+      name: destinations.name,
       thumbnail: destinations.thumbnail,
       isPublished: destinations.isPublished,
+      aiGenStatus: destinations.aiGenStatus,
       region: destinations.region,
       category: destinations.category,
       names: sql`GROUP_CONCAT(${destinationTranslations.languageCode} || ':' || ${destinationTranslations.title}, ' | ')`,

@@ -1,4 +1,4 @@
-import { eq, and, or, inArray, sql } from "drizzle-orm";
+import { eq, and, or } from "drizzle-orm";
 import { destinations, destinationTranslations } from "~~/db/schema";
 
 export default defineEventHandler(async (event) => {

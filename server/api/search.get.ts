@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (category && category !== "all") {
-    conditions.push(eq(destinations.category, category));
+    conditions.push(eq(destinations.category, category.split(",")));
   }
 
   const whereClause = and(

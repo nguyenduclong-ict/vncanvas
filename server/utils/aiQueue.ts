@@ -186,13 +186,52 @@ async function runProcessor() {
 
     markProcessing(slug);
 
+    // Update DB status to 'processing'
+    try {
+      if (dbInstance) {
+        await dbInstance
+          .update(destinations)
+          .set({ aiGenStatus: "processing" })
+          .where(eq(destinations.slug, slug));
+      }
+    } catch (e) {
+      console.error(
+        `[AI Queue] Failed to update status to processing for ${slug}`,
+        e
+      );
+    }
+
     try {
       await processDestination(dbInstance, slug);
       markCompleted(slug);
+
+      // Update DB status to 'done'
+      if (dbInstance) {
+        await dbInstance
+          .update(destinations)
+          .set({ aiGenStatus: "done" })
+          .where(eq(destinations.slug, slug));
+      }
+
       console.log(`[AI Queue] Completed: ${slug}`);
     } catch (error: any) {
       console.error(`[AI Queue] Error processing ${slug}:`, error);
       markError(slug, error.message || "Unknown error");
+
+      // Update DB status to 'error'
+      if (dbInstance) {
+        try {
+          await dbInstance
+            .update(destinations)
+            .set({ aiGenStatus: "error" })
+            .where(eq(destinations.slug, slug));
+        } catch (updateError) {
+          console.error(
+            `[AI Queue] Failed to update status to error for ${slug}`,
+            updateError
+          );
+        }
+      }
     }
 
     // Small delay between processing to avoid API rate limits
@@ -229,7 +268,12 @@ async function processDestination(db: any, slug: string) {
 
   // 2. Generate with Gemini
   console.log(`[AI Queue] Generating content with Gemini for ${slug}...`);
-  const aiResult = await generateDestinationContent(db, fullText, allImages);
+  const aiResult = await generateDestinationContent(
+    db,
+    fullText,
+    dest.name || slug,
+    allImages
+  );
 
   // 3. Download Images
   console.log(
@@ -242,8 +286,7 @@ async function processDestination(db: any, slug: string) {
 
   if (aiResult.selected_images) {
     for (const imgUrl of aiResult.selected_images) {
-      const customName = `image-${imageCount}`;
-      const localPath = await downloadImage(imgUrl, slug, customName);
+      const localPath = await downloadImage(imgUrl, slug);
       if (localPath) {
         localImageMap[imgUrl] = localPath;
         imageCount++;

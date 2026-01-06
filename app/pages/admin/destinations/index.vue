@@ -23,24 +23,43 @@ const searchQuery = ref("");
 const filterRegion = ref("");
 const filterCategory = ref("");
 const filterStatus = ref("");
+const filterAiStatus = ref("");
+const filterMissingLang = ref("");
+
+// Debounced search
 
 // Debounced search
 const debouncedSearch = refDebounced(searchQuery, 300);
 
-const { data: response, refresh } = await useFetch("/api/admin/destinations", {
-  query: computed(() => ({
-    page: page.value,
-    region: filterRegion.value || undefined,
-    category: filterCategory.value || undefined,
-    status: filterStatus.value || undefined,
-    q: debouncedSearch.value || undefined,
-  })),
-});
+const { data: response, refresh } = await useAdminFetch(
+  "/api/admin/destinations",
+  {
+    query: computed(() => ({
+      page: page.value,
+      region: filterRegion.value || undefined,
+      category: filterCategory.value || undefined,
+      status: filterStatus.value || undefined,
+      aiStatus: filterAiStatus.value || undefined,
+      missingLang: filterMissingLang.value || undefined,
+      q: debouncedSearch.value || undefined,
+    })),
+  }
+);
 
 // Reset to page 1 when filters change
-watch([filterRegion, filterCategory, filterStatus, debouncedSearch], () => {
-  page.value = 1;
-});
+watch(
+  [
+    filterRegion,
+    filterCategory,
+    filterStatus,
+    filterAiStatus,
+    filterMissingLang,
+    debouncedSearch,
+  ],
+  () => {
+    page.value = 1;
+  }
+);
 
 const destinations = computed<any[]>(() => response.value?.data || []);
 const totalPages = computed(() => response.value?.totalPages || 1);
@@ -89,6 +108,8 @@ function clearFilters() {
   filterRegion.value = "";
   filterCategory.value = "";
   filterStatus.value = "";
+  filterAiStatus.value = "";
+  filterMissingLang.value = "";
 }
 
 const hasActiveFilters = computed(() => {
@@ -96,7 +117,10 @@ const hasActiveFilters = computed(() => {
     searchQuery.value ||
     filterRegion.value ||
     filterCategory.value ||
-    filterStatus.value
+    filterStatus.value ||
+    filterStatus.value ||
+    filterAiStatus.value ||
+    filterMissingLang.value
   );
 });
 
@@ -113,7 +137,7 @@ async function handleBulkAction(action: "delete" | "publish" | "unpublish") {
 
   isLoading.value = true;
   try {
-    await $fetch("/api/admin/destinations/bulk", {
+    await useAdminFetch("/api/admin/destinations/bulk", {
       method: "post",
       body: {
         ids: Array.from(selectedDestinations.value),
@@ -149,26 +173,32 @@ const genProgress = ref<{
 } | null>(null);
 
 // Get AI gen status for a slug
-function getAiGenStatus(slug: string): string | null {
-  if (!genProgress.value) return null;
+function getAiGenStatus(slug: string, dbStatus?: string | null): string | null {
+  // Prefer real-time queue status
+  if (genProgress.value) {
+    if (genProgress.value.processingSlug === slug) return "processing";
+    if (genProgress.value.queue?.includes(slug)) return "queued";
+    // For completed/error, we might want to stick to DB status if queue is cleared,
+    // but if it's in the transient results, show it.
+    if (genProgress.value.completed.some((i) => i.slug === slug)) return "done";
+    if (genProgress.value.errors.some((i) => i.slug === slug)) return "error";
+  }
 
-  if (genProgress.value.processingSlug === slug) return "processing";
-  if (genProgress.value.queue.includes(slug)) return "queued";
-  if (genProgress.value.completed.some((i) => i.slug === slug))
-    return "completed";
-  if (genProgress.value.errors.some((i) => i.slug === slug)) return "error";
+  // Fallback to DB status
+  if (dbStatus) return dbStatus;
 
   return null;
 }
 
 // Get CSS class for AI gen status
-function getAiGenStatusClass(slug: string): string {
-  const status = getAiGenStatus(slug);
+function getAiGenStatusClass(slug: string, dbStatus?: string | null): string {
+  const status = getAiGenStatus(slug, dbStatus);
   switch (status) {
     case "processing":
       return "bg-blue-100 text-blue-800 flex items-center";
     case "queued":
       return "bg-yellow-100 text-yellow-800";
+    case "done":
     case "completed":
       return "bg-green-100 text-green-800";
     case "error":
@@ -190,7 +220,7 @@ async function handleBulkGenerate() {
   isGenerating.value = true;
 
   try {
-    const result = await $fetch<any>("/api/admin/generate-content", {
+    const result = await adminFetch<any>("/api/admin/generate-content", {
       method: "post",
       body: {
         ids: Array.from(selectedDestinations.value),
@@ -214,7 +244,7 @@ async function handleBulkGenerate() {
 
 async function pollProgress() {
   try {
-    const status = await $fetch<any>("/api/admin/ai-queue");
+    const status = await adminFetch<any>("/api/admin/ai-queue");
 
     genProgress.value = status;
 
@@ -237,7 +267,7 @@ let pollInterval: ReturnType<typeof setInterval> | null = null;
 
 async function fetchQueueStatus() {
   try {
-    const status = await $fetch<any>("/api/admin/ai-queue");
+    const status = await adminFetch<any>("/api/admin/ai-queue");
     genProgress.value = status;
 
     // Update isGenerating based on queue status
@@ -322,6 +352,36 @@ onUnmounted(() => {
         <option v-for="c in CATEGORIES" :key="c.key" :value="c.key">
           {{ c.label.en }}
         </option>
+      </select>
+      <select
+        v-model="filterStatus"
+        class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      >
+        <option value="">All Status</option>
+        <option value="published">Published</option>
+        <option value="draft">Draft</option>
+      </select>
+
+      <!-- AI Status Filter -->
+      <select
+        v-model="filterAiStatus"
+        class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      >
+        <option value="">All AI Status</option>
+        <option value="not_generated">Not Generated</option>
+        <option value="processing">Processing</option>
+        <option value="done">Done</option>
+        <option value="error">Error</option>
+      </select>
+
+      <!-- Missing Content Filter -->
+      <select
+        v-model="filterMissingLang"
+        class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      >
+        <option value="">All Content</option>
+        <option value="vi">Missing VI</option>
+        <option value="en">Missing EN</option>
       </select>
 
       <!-- Status Filter -->
@@ -449,6 +509,11 @@ onUnmounted(() => {
               Slug
             </th>
             <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Name
+            </th>
+            <th
               class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-[300px]"
             >
               Titles (VI/EN)
@@ -495,6 +560,11 @@ onUnmounted(() => {
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
               {{ dest.slug }}
             </td>
+            <td
+              class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium"
+            >
+              {{ dest.name || "—" }}
+            </td>
             <td class="px-6 py-4 text-sm text-gray-500 max-w-[300px]">
               <div class="truncate" :title="dest.names">
                 {{ dest.names }}
@@ -502,15 +572,17 @@ onUnmounted(() => {
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span
-                v-if="getAiGenStatus(dest.slug)"
-                :class="getAiGenStatusClass(dest.slug)"
+                v-if="getAiGenStatus(dest.slug, dest.aiGenStatus)"
+                :class="getAiGenStatusClass(dest.slug, dest.aiGenStatus)"
                 class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
               >
                 <Loader2
-                  v-if="getAiGenStatus(dest.slug) === 'processing'"
+                  v-if="
+                    getAiGenStatus(dest.slug, dest.aiGenStatus) === 'processing'
+                  "
                   class="w-3 h-3 mr-1 animate-spin"
                 />
-                {{ getAiGenStatus(dest.slug) }}
+                {{ getAiGenStatus(dest.slug, dest.aiGenStatus) }}
               </span>
               <span v-else class="text-gray-400 text-xs">—</span>
             </td>

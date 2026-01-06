@@ -73,6 +73,18 @@ export default defineEventHandler(async (event) => {
   // Add to queue (returns only newly added slugs)
   const added = addToQueue(slugsToAdd);
 
+  // Mark status as processing in DB immediately for added items
+  if (added.length > 0) {
+    try {
+      await db
+        .update(destinations)
+        .set({ aiGenStatus: "processing" })
+        .where(inArray(destinations.slug, added));
+    } catch (e) {
+      console.error("Failed to mark initial processing status", e);
+    }
+  }
+
   // Start processor
   startProcessor(db);
 

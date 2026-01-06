@@ -167,7 +167,7 @@ const activeTab = ref("info"); // info, vi, en
       class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6"
     >
       <h2 class="text-2xl font-bold text-gray-800 break-all">
-        Edit: {{ form.info.slug }}
+        Edit: {{ form.info.name }}
       </h2>
       <div class="flex items-center gap-2 shrink-0">
         <button

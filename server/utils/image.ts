@@ -31,9 +31,6 @@ export const downloadImage = async (
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
         const response = await fetch(url, {
-          headers: {
-            "User-Agent": "VietnamCanvasBot/1.0 (https://vietnamcanvas.com)",
-          },
           redirect: "follow", // Enable redirect following
         });
 

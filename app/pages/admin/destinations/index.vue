@@ -157,7 +157,6 @@ async function handleBulkAction(action: "delete" | "publish" | "unpublish") {
 }
 
 // Bulk AI Generation
-const isGenerating = ref(false);
 const genProgress = ref<{
   isProcessing: boolean;
   processingSlug: string | null;
@@ -176,7 +175,8 @@ const genProgress = ref<{
 function getAiGenStatus(slug: string, dbStatus?: string | null): string | null {
   // Prefer real-time queue status
   if (genProgress.value) {
-    if (genProgress.value.processingSlug === slug) return "processing";
+    // Check if slug is in processing array (for parallel processing)
+    if (genProgress.value.processingSlug?.includes(slug)) return "processing";
     if (genProgress.value.queue?.includes(slug)) return "queued";
     // For completed/error, we might want to stick to DB status if queue is cleared,
     // but if it's in the transient results, show it.
@@ -217,8 +217,6 @@ async function handleBulkGenerate() {
     return;
   }
 
-  isGenerating.value = true;
-
   try {
     const result = await adminFetch<any>("/api/admin/generate-content", {
       method: "post",
@@ -238,7 +236,6 @@ async function handleBulkGenerate() {
   } catch (error: any) {
     alert("Failed to start bulk generation: " + (error.message || error));
     console.error(error);
-    isGenerating.value = false;
   }
 }
 
@@ -252,13 +249,11 @@ async function pollProgress() {
       setTimeout(pollProgress, 2000);
     } else {
       // Done processing
-      isGenerating.value = false;
       selectedDestinations.value.clear();
       await refresh();
     }
   } catch (error) {
     console.error("Failed to poll progress:", error);
-    isGenerating.value = false;
   }
 }
 
@@ -269,11 +264,6 @@ async function fetchQueueStatus() {
   try {
     const status = await adminFetch<any>("/api/admin/ai-queue");
     genProgress.value = status;
-
-    // Update isGenerating based on queue status
-    if (status.isProcessing || status.queue.length > 0) {
-      isGenerating.value = true;
-    }
   } catch (error) {
     console.error("Failed to fetch queue status:", error);
   }
@@ -432,7 +422,7 @@ onUnmounted(() => {
         <button
           @click="handleBulkGenerate"
           class="flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm font-medium transition-colors"
-          :disabled="isLoading || isGenerating"
+          :disabled="isLoading"
         >
           <Sparkles class="w-4 h-4" />
           AI Gen
@@ -468,16 +458,13 @@ onUnmounted(() => {
 
     <!-- AI Generation Progress -->
     <div
-      v-if="isGenerating && genProgress"
+      v-if="genProgress?.isProcessing"
       class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4"
     >
       <div class="flex items-center gap-2 mb-2">
         <Loader2 class="w-4 h-4 text-blue-600 animate-spin" />
         <span class="text-blue-800 font-medium">
           AI Generation in Progress...
-          <span v-if="genProgress.processingSlug" class="font-normal">
-            ({{ genProgress.processingSlug }})
-          </span>
         </span>
       </div>
       <div class="text-sm text-blue-700 flex items-center justify-between">
@@ -538,9 +525,9 @@ onUnmounted(() => {
               Name
             </th>
             <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider max-w-[300px]"
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
-              Titles (VI/EN)
+              Category
             </th>
             <th
               class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24"
@@ -589,9 +576,15 @@ onUnmounted(() => {
             >
               {{ dest.name || "—" }}
             </td>
-            <td class="px-6 py-4 text-sm text-gray-500 max-w-[300px]">
-              <div class="truncate" :title="dest.names">
-                {{ dest.names }}
+            <td class="px-6 py-4 text-sm text-gray-500">
+              <div class="flex flex-wrap gap-1">
+                <span
+                  v-for="cat in dest.category"
+                  :key="cat"
+                  class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs"
+                >
+                  {{ cat }}
+                </span>
               </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">

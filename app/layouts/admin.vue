@@ -66,7 +66,7 @@ const logout = async () => {
       >
         <div class="flex items-center text-sm text-gray-500">
           <NuxtLink
-            :to="`/dia-diem/${route.params.slug}`"
+            :to="route.params.slug ? `/dia-diem/${route.params.slug}` : '/'"
             target="_blank"
             class="hover:text-emerald-600 flex items-center"
           >

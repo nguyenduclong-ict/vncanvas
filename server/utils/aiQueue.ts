@@ -91,7 +91,8 @@ export function updateQueueItem(
 
 // Mark item as processing
 export function markProcessing(slug: string): void {
-  queueState.processingSlug = slug;
+  // For parallel processing, we don't set processingSlug to single value
+  // Instead, we rely on item.status === "processing"
   queueState.isProcessing = true;
   updateQueueItem(slug, {
     status: "processing",
@@ -105,7 +106,7 @@ export function markCompleted(slug: string): void {
     status: "completed",
     completedAt: Date.now(),
   });
-  queueState.processingSlug = null;
+  // Don't clear processingSlug - other workers may still be running
 }
 
 // Mark item as error
@@ -115,7 +116,7 @@ export function markError(slug: string, error: string): void {
     error,
     completedAt: Date.now(),
   });
-  queueState.processingSlug = null;
+  // Don't clear processingSlug - other workers may still be running
 }
 
 // Set processing state
@@ -132,7 +133,11 @@ export function getQueueStatus() {
 
   return {
     isProcessing: queueState.isProcessing,
-    processingSlug: queueState.processingSlug,
+    processingSlug:
+      items
+        .filter((i) => i.status === "processing")
+        .map((i) => i.slug)
+        .join(", ") || null,
     queue: items.filter((i) => i.status === "queued").map((i) => i.slug),
     processing: items.filter((i) => i.status === "processing"),
     completed: items.filter((i) => i.status === "completed"),

@@ -24,24 +24,26 @@
 import { computed } from "vue";
 import SectionHeading from "@/components/atoms/SectionHeading.vue";
 import DestinationCard from "@/components/molecules/DestinationCard.vue";
-import { useRegions, useDestinations } from "@/composables/useAppData";
 
 const props = defineProps<{
   regionKey: "north" | "central" | "south";
 }>();
 
 const localePath = useLocalePath();
-
-const { data: regionInfo } = useRegions();
-const { data: allDestinations } = useDestinations();
+const { data: regionInfo } = useRegions(`rgs-${props.regionKey}-regionInfo`);
+const { data: searchResult } = useDestinations(
+  `rgs-${props.regionKey}-destinations`,
+  {
+    region: computed(() => props.regionKey),
+    limit: 3,
+  }
+);
 
 const regionName = computed(() => {
   return (regionInfo.value as any)?.[props.regionKey]?.name || "Miền";
 });
 
 const destinations = computed(() => {
-  return (allDestinations.value || [])
-    .filter((d) => d.region === props.regionKey)
-    .slice(0, 3);
+  return searchResult.value?.data || [];
 });
 </script>

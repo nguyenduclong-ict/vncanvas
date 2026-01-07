@@ -49,9 +49,8 @@ import HomeHero from "@/components/organisms/HomeHero.vue";
 import RegionSection from "@/components/organisms/RegionSection.vue";
 import CategoryCard from "@/components/molecules/CategoryCard.vue";
 import SectionHeading from "@/components/atoms/SectionHeading.vue";
-import { useCategories } from "@/composables/useAppData";
 
-const { data: categories } = await useCategories();
+const { data: categories } = await useCategories(`index-categories`);
 const { t } = useI18n();
 const localePath = useLocalePath();
 
@@ -60,8 +59,7 @@ useSeoMeta({
   description: t("seo.home.description"),
   ogTitle: t("seo.home.ogTitle"),
   ogDescription: t("seo.home.ogDescription"),
-  ogImage:
-    "https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=1200",
+  ogImage: "/images/cau-vang.jpeg",
   twitterCard: "summary_large_image",
 });
 </script>

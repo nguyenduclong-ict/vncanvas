@@ -1,20 +1,26 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 // Routes are generated dynamically by server/plugins/prerender-routes.ts from database
 
-export default defineNuxtConfig({
+let config;
+
+config = defineNuxtConfig({
   compatibilityDate: new Date().toISOString().split("T")[0] as any,
+  runtimeConfig: {
+    public: {
+      apiUrl: "",
+    },
+  },
   devtools: { enabled: true },
   modules: [
     "@nuxtjs/tailwindcss",
     "@nuxtjs/i18n",
     "@vueuse/nuxt",
     "@nuxtjs/seo",
-    "./modules/prerender-routes",
   ],
 
   // SEO Configuration
   site: {
-    url: "https://vietnamcanvas.com",
+    url: "https://vncanvas.com",
     name: "Vietnam Canvas",
     description:
       "Khám phá vẻ đẹp Việt Nam - Discover the beauty of Vietnam through stunning destinations, culture, and experiences.",
@@ -49,10 +55,33 @@ export default defineNuxtConfig({
   nitro: {
     preset: "cloudflare-pages",
     prerender: {
-      crawlLinks: true,
       autoSubfolderIndex: false,
-      // Routes are generated dynamically by server/plugins/prerender-routes.ts
-      // which queries the database for destinations and regions
     },
   },
 });
+
+// For static build
+if (process.env.BUILD_TARGET === "static") {
+  config.modules?.push("./modules/ssg");
+}
+
+// For API build
+if (process.env.BUILD_TARGET === "api") {
+  config = defineNuxtConfig({
+    pages: false,
+    modules: [],
+    hooks: {
+      "prerender:routes": ({ routes }) => {
+        routes.clear();
+      },
+    },
+    nitro: {
+      preset: "cloudflare_module",
+      cloudflare: {
+        nodeCompat: true,
+      },
+    },
+  });
+}
+
+export default config;

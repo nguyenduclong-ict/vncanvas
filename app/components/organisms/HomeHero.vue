@@ -2,7 +2,7 @@
   <div class="relative w-full h-screen overflow-hidden">
     <div class="absolute inset-0 bg-black">
       <img
-        src="https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=2000&auto=format&fit=crop"
+        src="/images/cau-vang.jpeg"
         class="w-full h-full object-cover opacity-60 scale-110 animate-float"
         style="animation-duration: 20s"
         alt="Vietnam Landscape"

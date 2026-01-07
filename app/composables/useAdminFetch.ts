@@ -1,4 +1,5 @@
 export const useAdminFetch = <T = any>(url: string, options: any = {}) => {
+  const config = useRuntimeConfig();
   const router = useRouter();
 
   const defaults = {
@@ -7,7 +8,12 @@ export const useAdminFetch = <T = any>(url: string, options: any = {}) => {
       if (response.status === 401) {
         // Try to refresh token
         try {
-          await $fetch("/api/auth/refresh", { method: "POST" });
+          await $fetch("/api/auth/refresh", {
+            method: "POST",
+            baseURL: config.public.apiUrl
+              ? String(config.public.apiUrl)
+              : undefined,
+          });
         } catch (refreshError) {
           router.push("/admin/login");
         }
@@ -26,6 +32,8 @@ export const useAdminFetch = <T = any>(url: string, options: any = {}) => {
 };
 
 export const adminFetch = async <T = any>(url: string, options: any = {}) => {
+  const config = useRuntimeConfig();
+
   const router = useRouter();
 
   return $fetch<T>(url, {
@@ -33,7 +41,12 @@ export const adminFetch = async <T = any>(url: string, options: any = {}) => {
     onRequestError: async ({ response }: any) => {
       if (response?.status === 401) {
         try {
-          await $fetch("/api/auth/refresh", { method: "POST" });
+          await $fetch("/api/auth/refresh", {
+            method: "POST",
+            baseURL: config.public.apiUrl
+              ? String(config.public.apiUrl)
+              : undefined,
+          });
         } catch (refreshError) {
           if (router) router.push("/admin/login");
         }

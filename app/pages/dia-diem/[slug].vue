@@ -75,7 +75,6 @@ import BaseIcon from "@/components/atoms/BaseIcon.vue";
 import SectionHeading from "@/components/atoms/SectionHeading.vue";
 import DetailSidebar from "@/components/organisms/DetailSidebar.vue";
 import StorySection from "@/components/organisms/StorySection.vue";
-import { useDestination } from "@/composables/useAppData";
 import { CATEGORIES } from "~~/shared/constants/categories";
 import { REGIONS } from "~~/shared/constants/regions";
 
@@ -83,7 +82,7 @@ const route = useRoute();
 const { locale } = useI18n();
 const slug = computed(() => route.params.slug as string);
 
-const { data: dest } = await useDestination(slug);
+const { data: dest } = await useDestination(`dd-${slug.value}`, slug);
 
 // Map all category keys to translated labels
 const categoryNames = computed(() => {

@@ -228,7 +228,6 @@ import BaseInput from "@/components/atoms/BaseInput.vue";
 import BaseIcon from "@/components/atoms/BaseIcon.vue";
 import SectionHeading from "@/components/atoms/SectionHeading.vue";
 import DestinationGrid from "@/components/organisms/DestinationGrid.vue";
-import { useCategories } from "@/composables/useAppData";
 import { REGIONS } from "~~/shared/constants/regions";
 import { MOOD_TAGS } from "~~/shared/constants/moods";
 
@@ -312,7 +311,7 @@ interface SearchResponse {
 const route = useRoute();
 const router = useRouter();
 const { locale } = useI18n();
-const { data: categories } = await useCategories();
+const { data: categories } = await useCategories(`tk-categories`);
 
 const getCategoryLabel = (key: string) => {
   const lang = locale.value as "vi" | "en";
@@ -418,7 +417,10 @@ const doSearch = async () => {
     params.set("page", currentPage.value.toString());
 
     const response = await $fetch<SearchResponse>(
-      `/api/search?${params.toString()}`
+      `/api/search?${params.toString()}`,
+      {
+        baseURL: useRuntimeConfig().public.apiUrl,
+      }
     );
     searchResults.value = response.data;
     pagination.value = response.pagination;

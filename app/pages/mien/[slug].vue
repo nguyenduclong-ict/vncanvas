@@ -77,13 +77,13 @@ import { useRoute } from "vue-router";
 import FeatureItem from "@/components/molecules/FeatureItem.vue";
 import DestinationGrid from "@/components/organisms/DestinationGrid.vue";
 import SectionHeading from "@/components/atoms/SectionHeading.vue";
-import { useRegions, useDestinations } from "@/composables/useAppData";
 
 const route = useRoute();
-const { data: regionInfo } = await useRegions();
-const { data: destinations } = await useDestinations();
-
+const { data: regionInfo } = await useRegions(`mien-regionInfo`);
 const regionKey = computed(() => route.params.slug as string);
+const { data: searchResult } = await useDestinations(`mien-destinations`, {
+  region: regionKey,
+});
 
 const info = computed(() => {
   return (
@@ -93,9 +93,7 @@ const info = computed(() => {
   );
 });
 
-const regionItems = computed(() =>
-  (destinations.value || []).filter((d) => d.region === regionKey.value)
-);
+const regionItems = computed(() => searchResult.value?.data || []);
 
 const headerImage = computed(
   () =>

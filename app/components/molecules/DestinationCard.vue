@@ -29,7 +29,7 @@
         </span>
       </div>
       <p class="text-gray-400 text-sm line-clamp-2 leading-relaxed">
-        {{ destination.short_desc }}
+        {{ destination.shortDesc || destination.short_desc }}
       </p>
     </div>
   </div>

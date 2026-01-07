@@ -6,10 +6,12 @@ import { execSync } from "node:child_process";
 
 export default defineNuxtModule({
   meta: {
-    name: "prerender-routes",
-    configKey: "prerenderRoutes",
+    name: "ssg",
+    configKey: "ssg",
   },
   async setup(_options, nuxt) {
+    if (process.env.BUILD_TARGET !== "static") return;
+
     // Get i18n config
     const i18nConfig = nuxt.options.i18n as any;
 
@@ -29,28 +31,19 @@ export default defineNuxtModule({
     ];
 
     // Region routes
-    const regions = ["north", "central", "south"];
+    const regions = await fetch(
+      `${process.env.NUXT_PUBLIC_API_URL}/api/regions`
+    )
+      .then((res) => res.json())
+      .then((res) => Object.keys(res));
 
     // Get published destinations from database via Wrangler CLI
-    let destinationSlugs: string[] = [];
 
-    try {
-      const cmd = `wrangler d1 execute vietnam-canvas-db --local --command "SELECT slug FROM destinations WHERE is_published = 1" --json`;
-      const output = execSync(cmd, {
-        encoding: "utf-8",
-        stdio: ["ignore", "pipe", "ignore"],
-      });
-      const result = JSON.parse(output);
-
-      if (result && result[0] && result[0].results) {
-        destinationSlugs = result[0].results.map((r: any) => r.slug);
-      }
-    } catch (e) {
-      console.warn(
-        "[Prerender Routes] Failed to read database via Wrangler, using empty list:",
-        e
-      );
-    }
+    const destinationSlugs = await fetch(
+      `${process.env.NUXT_PUBLIC_API_URL}/api/destinations`
+    )
+      .then((res) => res.json())
+      .then((res) => res.map((r: any) => r.slug));
 
     if (destinationSlugs.length === 0) {
       console.warn(

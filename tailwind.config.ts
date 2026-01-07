@@ -15,7 +15,7 @@ export default <Config>{
     extend: {
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', "sans-serif"],
-        serif: ['"Cormorant Garamond"', "serif"],
+        serif: ['"Playfair Display"', '"Cormorant Garamond"', "serif"],
       },
       colors: {
         "vn-red": "#DA251D",

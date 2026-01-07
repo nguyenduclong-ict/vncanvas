@@ -1,5 +1,10 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 // Routes are generated dynamically by server/plugins/prerender-routes.ts from database
+import fs from "fs";
+
+const wranglerWorker = JSON.parse(
+  fs.readFileSync("wrangler.worker.json", "utf-8")
+);
 
 let config;
 
@@ -25,6 +30,18 @@ config = defineNuxtConfig({
     description:
       "Khám phá vẻ đẹp Việt Nam - Discover the beauty of Vietnam through stunning destinations, culture, and experiences.",
     defaultLocale: "vi",
+  },
+
+  app: {
+    head: {
+      link: [
+        {
+          rel: "icon",
+          type: "image/x-icon",
+          href: "/favicon.ico",
+        },
+      ],
+    },
   },
 
   seo: {
@@ -62,7 +79,8 @@ config = defineNuxtConfig({
 
 // For static build
 if (process.env.BUILD_TARGET === "static") {
-  config.modules?.push("./modules/ssg");
+  config.modules?.push("./modules/prerender");
+  config.prerender = { enabled: true };
 }
 
 // For API build
@@ -79,6 +97,7 @@ if (process.env.BUILD_TARGET === "api") {
       preset: "cloudflare_module",
       cloudflare: {
         nodeCompat: true,
+        wrangler: wranglerWorker,
       },
     },
   });

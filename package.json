@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "nuxt dev",
+    "generate": "BUILD_TARGET=static nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "generate-pwa-assets": "pwa-assets-generator public/logo.svg --preset minimal",
@@ -13,9 +14,10 @@
     "db:studio": "drizzle-kit studio",
     "import:destinations": "npx tsx scripts/import_destinations.ts",
     "create-admin": "npx tsx scripts/create_admin.ts",
-    "build:api": "BUILD_TARGET=api nuxt build --dotenv .env.prod",
-    "deploy:api": "wrangler --config wrangler.worker.toml deploy",
-    "generate": "BUILD_TARGET=static nuxt generate --dotenv .env.prod",
+    "build:api": "BUILD_TARGET=api nuxt build",
+    "deploy:api": "wrangler --config wrangler.worker.json deploy",
+    "dev:api": "npx wrangler dev .output/server/index.mjs --config wrangler.worker.json",
+    "build:ssg": "npx tsx scripts/build_ssg.ts",
     "deploy:static": "wrangler pages deploy dist"
   },
   "dependencies": {

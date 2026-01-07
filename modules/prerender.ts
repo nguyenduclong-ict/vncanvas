@@ -2,15 +2,17 @@
 // This runs at build time and adds routes dynamically
 
 import { defineNuxtModule } from "@nuxt/kit";
-import { execSync } from "node:child_process";
 
-export default defineNuxtModule({
+export default defineNuxtModule<{ enabled?: boolean }>({
   meta: {
-    name: "ssg",
-    configKey: "ssg",
+    name: "prerender",
+    configKey: "prerender",
+  },
+  defaults: {
+    enabled: false,
   },
   async setup(_options, nuxt) {
-    if (process.env.BUILD_TARGET !== "static") return;
+    if (!_options.enabled) return;
 
     // Get i18n config
     const i18nConfig = nuxt.options.i18n as any;
@@ -40,7 +42,7 @@ export default defineNuxtModule({
     // Get published destinations from database via Wrangler CLI
 
     const destinationSlugs = await fetch(
-      `${process.env.NUXT_PUBLIC_API_URL}/api/destinations`
+      `${process.env.NUXT_PUBLIC_API_URL}/api/destinations/published`
     )
       .then((res) => res.json())
       .then((res) => res.map((r: any) => r.slug));

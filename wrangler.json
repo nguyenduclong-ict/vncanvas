@@ -1,0 +1,14 @@
+{
+  "name": "vncanvas",
+  "compatibility_date": "2025-04-03",
+  "pages_build_output_dir": "dist",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "vietnam-canvas-db",
+      "database_id": "5247e97b-d6aa-46e2-8f45-338c6ef09275",
+      "preview_database_id": "DB",
+      "migrations_dir": "db/migrations"
+    }
+  ]
+}

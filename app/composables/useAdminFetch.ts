@@ -4,19 +4,21 @@ export const useAdminFetch = <T = any>(url: string, options: any = {}) => {
 
   const defaults = {
     retry: 1,
-    onResponseError: async ({ response }: any) => {
-      if (response.status === 401) {
+    baseURL: config.public.apiUrl,
+    onResponseError: async (error: any) => {
+      console.log("useAdminFetch -> onRequestError", error);
+      if (error?.response?.status === 401) {
         // Try to refresh token
         try {
           await $fetch("/api/auth/refresh", {
             method: "POST",
-            baseURL: config.public.apiUrl
-              ? String(config.public.apiUrl)
-              : undefined,
+            baseURL: config.public.apiUrl,
           });
         } catch (refreshError) {
           router.push("/admin/login");
         }
+      } else {
+        throw error;
       }
     },
   };
@@ -25,7 +27,6 @@ export const useAdminFetch = <T = any>(url: string, options: any = {}) => {
   const params = {
     ...defaults,
     ...options,
-    // Ensure we don't overwrite headers if we need to merge them later
   };
 
   return useFetch<T>(url, params);
@@ -38,20 +39,27 @@ export const adminFetch = async <T = any>(url: string, options: any = {}) => {
 
   return $fetch<T>(url, {
     retry: 1,
-    onRequestError: async ({ response }: any) => {
-      if (response?.status === 401) {
+    onResponseError: async (error) => {
+      console.log("adminFetch -> onRequestError", error);
+      if (error?.response?.status === 401) {
         try {
+          console.log("adminFetch -> onRequestError -> refresh token");
           await $fetch("/api/auth/refresh", {
             method: "POST",
-            baseURL: config.public.apiUrl
-              ? String(config.public.apiUrl)
-              : undefined,
+            baseURL: config.public.apiUrl,
           });
         } catch (refreshError) {
+          console.log(
+            "adminFetch -> onRequestError -> refresh token error",
+            refreshError
+          );
           if (router) router.push("/admin/login");
         }
+      } else {
+        throw error;
       }
     },
+    baseURL: config.public.apiUrl,
     ...options,
   });
 };

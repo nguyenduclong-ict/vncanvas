@@ -12,7 +12,7 @@ config = defineNuxtConfig({
   compatibilityDate: new Date().toISOString().split("T")[0] as any,
   runtimeConfig: {
     public: {
-      apiUrl: "",
+      apiUrl: process.env.NUXT_PUBLIC_API_URL,
     },
   },
   devtools: { enabled: true },

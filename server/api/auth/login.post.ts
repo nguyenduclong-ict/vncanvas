@@ -54,13 +54,5 @@ export default defineEventHandler(async (event) => {
     maxAge: 7 * 24 * 60 * 60, // 7 days
   });
 
-  // Public cookie to let client know we are logged in
-  setCookie(event, "is_logged_in", "true", {
-    httpOnly: false,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 7 * 24 * 60 * 60,
-  });
-
   return { success: true };
 });

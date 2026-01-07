@@ -1,13 +1,13 @@
 export default defineEventHandler(async (event) => {
   if (event.path.startsWith("/api/admin")) {
+    const cookies = parseCookies(event);
+    const accessToken = cookies.access_token;
     // Check for authorization header
-    const authHeader = getRequestHeader(event, "Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!accessToken) {
       throw createError({ statusCode: 401, message: "Unauthorized" });
     }
 
-    const token = authHeader.split(" ")[1];
-    const payload = await verifyToken(token);
+    const payload = await verifyToken(accessToken);
 
     if (!payload) {
       throw createError({ statusCode: 401, message: "Invalid token" });

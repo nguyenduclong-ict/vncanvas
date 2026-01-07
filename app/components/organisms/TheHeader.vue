@@ -78,6 +78,7 @@
         <NuxtLink
           :to="localePath('/tim-kiem')"
           class="p-2 hover:bg-white/10 rounded-full transition text-white"
+          :aria-label="$t('common.search')"
         >
           <BaseIcon name="search" class="w-5 h-5" />
         </NuxtLink>
@@ -91,7 +92,11 @@
         isScrolled && 'bg-stone-950/90 backdrop-blur border-b border-white/5',
       ]"
     >
-      <NuxtLink :to="localePath('/')" class="cursor-pointer">
+      <NuxtLink
+        :to="localePath('/')"
+        class="cursor-pointer"
+        :aria-label="$t('common.home')"
+      >
         <img src="/logo.svg" alt="Vietnam Canvas" class="h-8 w-auto" />
       </NuxtLink>
       <div class="flex items-center gap-3">
@@ -117,7 +122,11 @@
             </button>
           </div>
         </div>
-        <NuxtLink :to="localePath('/tim-kiem')" class="text-white">
+        <NuxtLink
+          :to="localePath('/tim-kiem')"
+          class="text-white"
+          :aria-label="$t('common.search')"
+        >
           <BaseIcon name="search" class="w-5 h-5" />
         </NuxtLink>
       </div>

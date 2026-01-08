@@ -11,5 +11,8 @@
       "preview_database_id": "DB",
       "migrations_dir": "db/migrations"
     }
-  ]
+  ],
+  "vars": {
+    "QUEUE_SECRET": ""
+  }
 }

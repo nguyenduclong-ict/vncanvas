@@ -12,7 +12,9 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const slug = route.params.slug as string;
-const { data, refresh } = await useFetch(`/api/admin/destinations/${slug}`);
+const { data, refresh } = await useAdminFetch(
+  `/api/admin/destinations/${slug}`
+);
 
 interface TranslationForm {
   title: string;
@@ -86,7 +88,7 @@ const save = async () => {
     // Drizzle with mode: 'json' handles serialization automatically
     // No need to JSON.stringify arrays/objects here
 
-    await $fetch(`/api/admin/destinations/${slug}`, {
+    await adminFetch(`/api/admin/destinations/${slug}`, {
       method: "PUT",
       body: payload,
     });
@@ -105,18 +107,19 @@ const aiGenStatus = ref<string | null>(null);
 
 const checkAiGenStatus = async () => {
   try {
-    const result = await $fetch<any>(`/api/admin/ai-queue?slug=${slug}`);
-    aiGenStatus.value = result.status === "not_in_queue" ? null : result.status;
+    // Poll the destination itself to get updated 'aiGenStatus' from DB
+    // This assumes the consumer updates the destination status in the DB.
+    await refresh(); // Re-fetch data
+    // access data from 'data.value.info.aiGenStatus' if structure matches
+    const result = data.value as any;
+    const status = result?.info?.aiGenStatus;
+    aiGenStatus.value = status;
 
     // Keep polling if queued or processing
-    if (aiGenStatus.value === "queued" || aiGenStatus.value === "processing") {
+    if (status === "queued" || status === "processing") {
       setTimeout(checkAiGenStatus, 2000);
-    } else if (aiGenStatus.value === "completed") {
-      // Auto refresh page after completion
-      setTimeout(() => {
-        aiGenStatus.value = null;
-        refresh();
-      }, 1000);
+    } else if (status === "completed" || status === "done") {
+      // Stop polling
     }
   } catch (e) {
     console.error("Failed to check AI gen status:", e);
@@ -141,7 +144,7 @@ const generateContent = async () => {
 
   isGenerating.value = true;
   try {
-    await $fetch("/api/admin/generate-content", {
+    await adminFetch("/api/admin/generate-content", {
       method: "POST",
       body: {
         slug: form.info.slug,
@@ -367,4 +370,3 @@ const activeTab = ref("info"); // info, vi, en
     </div>
   </div>
 </template>
-```

@@ -1,7 +1,7 @@
 import { spawn, execSync, ChildProcessWithoutNullStreams } from "child_process";
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config({ path: "./.env.prod" });
 
 export default async function buildSSG() {
   const spawns: ChildProcessWithoutNullStreams[] = [];

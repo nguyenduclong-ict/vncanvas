@@ -73,6 +73,49 @@ export const adminUsers = sqliteTable("admin_users", {
     .notNull(),
 });
 
+// Queue Jobs table schema
+export const jobs = sqliteTable(
+  "jobs",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    queue: text("queue").notNull(),
+    data: text("data", { mode: "json" }).$type<any>().notNull(),
+    status: text("status", { enum: ["pending", "running"] })
+      .default("pending")
+      .notNull(),
+    createdAt: text("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: text("updated_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => ({
+    // Index for efficient queue processing (finding pending jobs by queue)
+    queueStatusIdx: uniqueIndex("jobs_queue_status_created_idx").on(
+      table.queue,
+      table.status,
+      table.createdAt
+    ),
+  })
+);
+
+// Queue Settings table schema
+export const queueSettings = sqliteTable("queue_settings", {
+  queue: text("queue").primaryKey(),
+  concurrency: integer("concurrency").default(1).notNull(),
+  createdAt: text("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: text("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
 // Type exports
 export type Destination = typeof destinations.$inferSelect;
 export type NewDestination = typeof destinations.$inferInsert;
+export type Job = typeof jobs.$inferSelect;
+export type NewJob = typeof jobs.$inferInsert;
+export type QueueSetting = typeof queueSettings.$inferSelect;
+export type NewQueueSetting = typeof queueSettings.$inferInsert;

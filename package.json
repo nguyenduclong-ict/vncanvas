@@ -14,11 +14,11 @@
     "db:studio": "drizzle-kit studio",
     "import:destinations": "npx tsx scripts/import_destinations.ts",
     "create-admin": "npx tsx scripts/create_admin.ts",
-    "build:api": "BUILD_TARGET=api nuxt build",
-    "deploy:api": "wrangler --config wrangler.worker.json deploy",
+    "build:api": "BUILD_TARGET=api nuxt build --dotenv .env.prod",
+    "deploy:api": "npx tsx scripts/deploy_api.ts",
     "dev:api": "npx wrangler dev .output/server/index.mjs --config wrangler.worker.json",
-    "build:ssg": "npx tsx scripts/build_ssg.ts",
-    "deploy:static": "wrangler pages deploy dist"
+    "build:web": "npx tsx scripts/build_ssg.ts",
+    "deploy:web": "wrangler pages deploy dist --env-file .env.prod"
   },
   "dependencies": {
     "@google/genai": "^1.34.0",
@@ -33,6 +33,7 @@
     "jose": "^6.1.3",
     "lucide-vue-next": "^0.562.0",
     "nuxt": "^4.2.2",
+    "nuxt-security": "^2.5.0",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4"
   },

@@ -11,7 +11,7 @@ const router = useRouter();
 const handleLogin = async () => {
   error.value = "";
   try {
-    await $fetch("/api/auth/login", {
+    await adminFetch("/api/auth/login", {
       method: "POST",
       body: { username: username.value, password: password.value },
     });

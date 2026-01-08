@@ -1,12 +1,36 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 // Routes are generated dynamically by server/plugins/prerender-routes.ts from database
 import fs from "fs";
+import type { HTTPMethod } from "nuxt-security";
 
 const wranglerWorker = JSON.parse(
   fs.readFileSync("wrangler.worker.json", "utf-8")
 );
 
 let config;
+
+const securitySettings = {
+  corsHandler: {
+    origin: [
+      "https://vncanvas.pages.dev",
+      "https://vncanvas.com",
+      "http://localhost:3000",
+      "https://*.vncanvas.pages.dev",
+    ],
+    methods: [
+      "GET",
+      "HEAD",
+      "PUT",
+      "PATCH",
+      "POST",
+      "DELETE",
+      "OPTIONS",
+    ] as HTTPMethod[],
+    allowHeaders: ["Content-Type", "Authorization"],
+    exposeHeaders: ["Content-Length", "Content-Range"],
+    credentials: true,
+  },
+};
 
 config = defineNuxtConfig({
   compatibilityDate: new Date().toISOString().split("T")[0] as any,
@@ -21,6 +45,7 @@ config = defineNuxtConfig({
     "@nuxtjs/i18n",
     "@vueuse/nuxt",
     "@nuxtjs/seo",
+    "nuxt-security",
   ],
 
   // SEO Configuration
@@ -67,6 +92,9 @@ config = defineNuxtConfig({
 
   routeRules: {
     "/admin/**": { ssr: false, prerender: false },
+    "api/**": {
+      security: securitySettings,
+    },
   },
 
   nitro: {
@@ -87,10 +115,15 @@ if (process.env.BUILD_TARGET === "static") {
 if (process.env.BUILD_TARGET === "api") {
   config = defineNuxtConfig({
     pages: false,
-    modules: [],
+    modules: ["nuxt-security"],
     hooks: {
       "prerender:routes": ({ routes }) => {
         routes.clear();
+      },
+    },
+    routeRules: {
+      "api/**": {
+        security: securitySettings,
       },
     },
     nitro: {

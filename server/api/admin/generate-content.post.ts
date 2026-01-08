@@ -1,11 +1,12 @@
 import { eq, inArray } from "drizzle-orm";
 import { destinations } from "~~/db/schema";
-import {
-  addToQueue,
-  getQueueStatus,
-  getItemStatus,
-  startProcessor,
-} from "../../utils/aiQueue";
+import { addJobToQueue } from "~~/server/utils/queue";
+// import {
+//   addToQueue,
+//   getQueueStatus,
+//   getItemStatus,
+//   startProcessor,
+// } from "../../utils/aiQueue";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
@@ -66,36 +67,39 @@ export default defineEventHandler(async (event) => {
       success: false,
       message: "No valid destinations with source URLs found",
       added: [],
-      ...getQueueStatus(),
     };
   }
 
-  // Add to queue (returns only newly added slugs)
-  const added = addToQueue(slugsToAdd);
+  // Add to queue via addJobToQueue
+  const added: string[] = [];
 
-  // Mark status as processing in DB immediately for added items
+  for (const s of slugsToAdd) {
+    // Basic deduplication could be done here or relied on DB constraints?
+    // addJobToQueue doesn't enforce uniqueness unless we check.
+    // But user asked for simple skipped logic.
+    await addJobToQueue(event, "ai-queue", { slug: s });
+    added.push(s);
+  }
+
+  // Mark status as queued in DB immediately?
+  // The consumer sets it to processing.
+  // We can set it to "queued" if we want, but destinations table schema might not have "queued".
+  // Assuming "aiGenStatus" supports it.
   if (added.length > 0) {
     try {
       await db
         .update(destinations)
-        .set({ aiGenStatus: "processing" })
+        .set({ aiGenStatus: "queued" })
         .where(inArray(destinations.slug, added));
     } catch (e) {
-      console.error("Failed to mark initial processing status", e);
+      console.error("Failed to mark initial queued status", e);
     }
   }
 
-  // Start processor
-  startProcessor(db);
-
   return {
     success: true,
-    message:
-      added.length > 0
-        ? `Added ${added.length} destination(s) to queue`
-        : "All destinations already in queue",
+    message: `Added ${added.length} destination(s) to queue`,
     added,
     skipped: slugsToAdd.length - added.length,
-    ...getQueueStatus(),
   };
 });

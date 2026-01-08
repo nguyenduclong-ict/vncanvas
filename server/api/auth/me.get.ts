@@ -1,4 +1,4 @@
-import { verifyToken } from "../../utils/auth";
+import { verifyToken } from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
   const accessToken = getCookie(event, "access_token");

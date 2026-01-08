@@ -4,7 +4,7 @@ import {
   createAccessToken,
   createRefreshToken,
   verifyPassword,
-} from "../../utils/auth";
+} from "~~/server/utils/auth";
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
@@ -40,17 +40,19 @@ export default defineEventHandler(async (event) => {
   });
 
   // Set cookies
+  const isProd = process.env.NODE_ENV === "production";
+
   setCookie(event, "access_token", accessToken, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     maxAge: 15 * 60, // 15 minutes
   });
 
   setCookie(event, "refresh_token", refreshToken, {
     httpOnly: true, // IMPORTANT: HttpOnly
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60, // 7 days
   });
 

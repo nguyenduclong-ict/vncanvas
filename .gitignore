@@ -25,3 +25,4 @@ logs
 .wrangler
 tmp/*
 !.gitkeep
+*wrangler*.deploy.json

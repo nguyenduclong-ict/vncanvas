@@ -147,7 +147,7 @@
                 />
                 <img
                   v-if="section.image"
-                  :src="section.image"
+                  :src="getImageUrl(section.image)"
                   class="w-12 h-12 object-cover rounded border bg-white"
                 />
               </div>
@@ -167,6 +167,9 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
+import { useImageUrl } from "~/composables/useImageUrl";
+
+const { getImageUrl } = useImageUrl();
 
 interface TranslationData {
   title: string;

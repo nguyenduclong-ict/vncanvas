@@ -5,7 +5,7 @@
       class="relative h-[60vh] flex items-center justify-center overflow-hidden"
     >
       <img
-        :src="headerImage"
+        :src="getImageUrl(headerImage)"
         class="absolute inset-0 w-full h-full object-cover opacity-50"
       />
       <div
@@ -77,8 +77,10 @@ import { useRoute } from "vue-router";
 import FeatureItem from "@/components/molecules/FeatureItem.vue";
 import DestinationGrid from "@/components/organisms/DestinationGrid.vue";
 import SectionHeading from "@/components/atoms/SectionHeading.vue";
+import { useImageUrl } from "~/composables/useImageUrl";
 
 const route = useRoute();
+const { getImageUrl } = useImageUrl();
 const { data: regionInfo } = await useRegions(`mien-regionInfo`);
 const regionKey = computed(() => route.params.slug as string);
 const { data: searchResult } = await useDestinations(`mien-destinations`, {

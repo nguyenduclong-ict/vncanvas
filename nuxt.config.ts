@@ -37,6 +37,7 @@ config = defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiUrl: process.env.NUXT_PUBLIC_API_URL,
+      r2PublicDomain: process.env.R2_PUBLIC_DOMAIN || "https://pub-xxxx.r2.dev", // Update with real domain later
     },
   },
   devtools: { enabled: true },
@@ -46,6 +47,7 @@ config = defineNuxtConfig({
     "@vueuse/nuxt",
     "@nuxtjs/seo",
     "nuxt-security",
+    "./modules/local-r2",
   ],
 
   // SEO Configuration

@@ -10,5 +10,11 @@
       "preview_database_id": "DB",
       "migrations_dir": "db/migrations"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "STORAGE",
+      "bucket_name": "vncanvas-storage"
+    }
   ]
 }

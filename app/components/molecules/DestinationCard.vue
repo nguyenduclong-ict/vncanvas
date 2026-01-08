@@ -5,7 +5,7 @@
   >
     <div class="aspect-[16/9] overflow-hidden relative">
       <img
-        :src="destination.thumbnail"
+        :src="getImageUrl(destination.thumbnail)"
         :alt="destination.title"
         class="w-full h-full object-cover transition duration-700 group-hover:scale-110"
       />
@@ -40,6 +40,9 @@ import { computed } from "vue";
 import BaseTag from "@/components/atoms/BaseTag.vue";
 import { CATEGORIES } from "~~/shared/constants/categories";
 import { REGIONS } from "~~/shared/constants/regions";
+import { useImageUrl } from "~/composables/useImageUrl";
+
+const { getImageUrl } = useImageUrl();
 
 const props = defineProps<{
   destination: any;

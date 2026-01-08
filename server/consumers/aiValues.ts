@@ -97,14 +97,14 @@ export const aiQueueConsumer = async (data: { slug: string }, event: any) => {
     console.log(
       `[AI Queue] Downloading ${aiResult.selected_images?.length} images for ${slug}...`
     );
-    await deleteDestinationImages(slug);
+    await deleteDestinationImages(event, slug);
 
     const localImageMap: Record<string, string> = {};
     let imageCount = 1;
 
     if (aiResult.selected_images) {
       for (const imgUrl of aiResult.selected_images) {
-        const localPath = await downloadImage(imgUrl, slug);
+        const localPath = await downloadImage(event, imgUrl, slug);
         if (localPath) {
           localImageMap[imgUrl] = localPath;
           imageCount++;
@@ -124,6 +124,7 @@ export const aiQueueConsumer = async (data: { slug: string }, event: any) => {
               try {
                 const customName = `image-${imageCount}`;
                 const newPath = await downloadImage(
+                  event,
                   section.image,
                   slug,
                   customName

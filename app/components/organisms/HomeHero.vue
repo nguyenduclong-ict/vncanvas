@@ -2,7 +2,7 @@
   <div class="relative w-full h-screen overflow-hidden">
     <div class="absolute inset-0 bg-black">
       <img
-        src="/images/cau-vang.jpeg"
+        :src="getImageUrl('/images/cau-vang.jpeg')"
         class="w-full h-full object-cover opacity-60 scale-110 animate-float"
         style="animation-duration: 20s"
         alt="Vietnam Landscape"
@@ -43,8 +43,10 @@
 </template>
 
 <script setup lang="ts">
+import { useImageUrl } from "~/composables/useImageUrl";
 import BaseButton from "@/components/atoms/BaseButton.vue";
 import BaseIcon from "@/components/atoms/BaseIcon.vue";
 
 const localePath = useLocalePath();
+const { getImageUrl } = useImageUrl();
 </script>

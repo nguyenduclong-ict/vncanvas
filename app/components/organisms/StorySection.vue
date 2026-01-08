@@ -3,7 +3,7 @@
     <div v-for="(section, idx) in story" :key="idx">
       <img
         v-if="section.image"
-        :src="section.image"
+        :src="getImageUrl(section.image)"
         class="w-full h-64 md:h-96 object-cover rounded-lg mb-4"
       />
       <div
@@ -15,12 +15,13 @@
 </template>
 
 <script setup lang="ts">
+import { useImageUrl } from "~/composables/useImageUrl";
+
 defineProps<{
-  story: Array<{
-    content: string;
-    image?: string;
-  }>;
+  story: any[];
 }>();
+
+const { getImageUrl } = useImageUrl();
 
 const formatText = (text: string) => {
   if (!text) return "";

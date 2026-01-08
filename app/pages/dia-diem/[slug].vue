@@ -1,7 +1,10 @@
 <template>
   <div v-if="dest" class="min-h-screen">
     <div class="relative h-[60vh] w-full">
-      <img :src="dest.thumbnail" class="w-full h-full object-cover" />
+      <img
+        :src="getImageUrl(dest.thumbnail)"
+        class="w-full h-full object-cover"
+      />
       <!-- Bottom gradient for content -->
       <div
         class="absolute inset-0 bg-gradient-to-t from-stone-950 via-black/50 to-transparent"
@@ -77,9 +80,11 @@ import DetailSidebar from "@/components/organisms/DetailSidebar.vue";
 import StorySection from "@/components/organisms/StorySection.vue";
 import { CATEGORIES } from "~~/shared/constants/categories";
 import { REGIONS } from "~~/shared/constants/regions";
+import { useImageUrl } from "~/composables/useImageUrl";
 
 const route = useRoute();
 const { locale } = useI18n();
+const { getImageUrl } = useImageUrl();
 const slug = computed(() => route.params.slug as string);
 
 const { data: dest } = await useDestination(`dd-${slug.value}`, slug);

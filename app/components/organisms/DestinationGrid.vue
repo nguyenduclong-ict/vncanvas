@@ -11,7 +11,7 @@
     >
       <div class="w-full md:w-1/3 h-48 md:h-full relative overflow-hidden">
         <img
-          :src="dest.thumbnail"
+          :src="getImageUrl(dest.thumbnail)"
           class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
         />
       </div>
@@ -37,15 +37,18 @@
 </template>
 
 <script setup lang="ts">
+import { useImageUrl } from "~/composables/useImageUrl";
+import DestinationCard from "@/components/molecules/DestinationCard.vue";
 import { CATEGORIES } from "~~/shared/constants/categories";
 import { REGIONS } from "~~/shared/constants/regions";
 
-defineProps<{
+const props = defineProps<{
   destinations: any[];
 }>();
 
-const { locale } = useI18n();
 const localePath = useLocalePath();
+const { getImageUrl } = useImageUrl();
+const { locale } = useI18n();
 
 const getCategoryLabel = (category: string | string[]) => {
   const lang = locale.value as "vi" | "en";

@@ -7,18 +7,11 @@ import {
 
 export default defineEventHandler(async (event) => {
   const { pathname } = getRequestURL(event);
-  // Remove leading slash to get the key.
-  // Example URI: /images/destinations/hanoi/thumb.jpg
-  // R2 Key: images/destinations/hanoi/thumb.jpg
   const key = pathname.startsWith("/") ? pathname.slice(1) : pathname;
 
-  // Access the R2 binding (Assumes 'STORAGE' binding is set in wrangler.json and available in context)
   const storage = event.context.cloudflare?.env?.STORAGE;
 
   if (!storage) {
-    // If we are here, it means the binding isn't available.
-    // This might happen if not running with wrangler/platform proxy.
-    // We'll log a warning and let it 404 (or maybe fall through if possible, but H3 handler usually terminates).
     console.warn("R2 Storage binding not found in event context.");
     throw createError({
       statusCode: 404,

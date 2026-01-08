@@ -98,9 +98,7 @@ const info = computed(() => {
 const regionItems = computed(() => searchResult.value?.data || []);
 
 const headerImage = computed(
-  () =>
-    regionItems.value[0]?.thumbnail ||
-    "https://images.unsplash.com/photo-1528127269322-53996db8668d"
+  () => getImageUrl(regionItems.value[0]?.thumbnail) || info.value?.thumbnail
 );
 
 useSeoMeta({

@@ -79,6 +79,20 @@ config = defineNuxtConfig({
     enabled: true,
   },
 
+  security: {
+    headers: {
+      contentSecurityPolicy: {
+        "img-src": [
+          "'self'",
+          "data:",
+          "https://*.r2.dev",
+          "https://*.cloudflarestorage.com",
+          "https://assets.vncanvas.com",
+        ],
+      },
+    },
+  },
+
   css: ["~/assets/css/main.css"],
 
   i18n: {
@@ -116,6 +130,11 @@ if (process.env.BUILD_TARGET === "static") {
 // For API build
 if (process.env.BUILD_TARGET === "api") {
   config = defineNuxtConfig({
+    runtimeConfig: {
+      private: {
+        queueSecret: process.env.QUEUE_SECRET,
+      },
+    },
     pages: false,
     modules: ["nuxt-security"],
     hooks: {

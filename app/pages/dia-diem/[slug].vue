@@ -144,7 +144,7 @@ useSeoMeta({
   ),
   ogTitle: computed(() => dest.value?.title || "Destination"),
   ogDescription: computed(() => dest.value?.shortDesc || ""),
-  ogImage: computed(() => dest.value?.thumbnail || ""),
+  ogImage: computed(() => getImageUrl(dest.value?.thumbnail) || ""),
   twitterCard: "summary_large_image",
 });
 </script>

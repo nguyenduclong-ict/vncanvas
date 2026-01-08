@@ -1,5 +1,8 @@
 {
   "include": [
     "scripts/**/*"
-  ]
+  ],
+  "compilerOptions": {
+    "target": "ESNext"
+  }
 }

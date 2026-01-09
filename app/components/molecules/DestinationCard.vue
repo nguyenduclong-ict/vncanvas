@@ -4,9 +4,14 @@
     @click="navigate"
   >
     <div class="aspect-[16/9] overflow-hidden relative">
-      <img
+      <NuxtImg
         :src="getImageUrl(destination.thumbnail)"
         :alt="destination.title"
+        format="webp"
+        loading="lazy"
+        :width="600"
+        :height="338"
+        sizes="sm:100vw md:50vw lg:33vw"
         class="w-full h-full object-cover transition duration-700 group-hover:scale-110"
       />
       <div

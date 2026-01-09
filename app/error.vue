@@ -19,8 +19,10 @@
     >
       <!-- Background Image with Overlay -->
       <div class="absolute inset-0 z-0">
-        <img
+        <NuxtImg
           src="https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=1920"
+          format="webp"
+          loading="eager"
           class="w-full h-full object-cover grayscale opacity-20 scale-105"
           alt="Misty landscape"
         />

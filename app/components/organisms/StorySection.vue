@@ -1,9 +1,11 @@
 <template>
   <div class="my-8 space-y-12">
     <div v-for="(section, idx) in story" :key="idx">
-      <img
+      <NuxtImg
         v-if="section.image"
         :src="getImageUrl(section.image)"
+        format="webp"
+        loading="lazy"
         class="w-full h-64 md:h-96 object-cover rounded-lg mb-4"
       />
       <div

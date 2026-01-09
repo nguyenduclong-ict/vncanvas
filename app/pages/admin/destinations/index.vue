@@ -623,9 +623,13 @@ onUnmounted(() => {
               </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <img
+              <NuxtImg
                 :src="getImageUrl(dest.thumbnail)"
+                format="webp"
                 class="h-10 w-16 object-cover rounded"
+                width="64"
+                height="40"
+                loading="lazy"
               />
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

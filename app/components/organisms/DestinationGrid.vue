@@ -10,8 +10,13 @@
       class="bg-stone-900 rounded-xl overflow-hidden border border-white/5 hover:border-white/20 transition cursor-pointer flex flex-col md:flex-row h-auto md:h-40 group"
     >
       <div class="w-full md:w-1/3 h-48 md:h-full relative overflow-hidden">
-        <img
+        <NuxtImg
           :src="getImageUrl(dest.thumbnail)"
+          format="webp"
+          loading="lazy"
+          :width="400"
+          :height="300"
+          sizes="sm:100vw md:33vw"
           class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
         />
       </div>
@@ -38,7 +43,6 @@
 
 <script setup lang="ts">
 import { useImageUrl } from "~/composables/useImageUrl";
-import DestinationCard from "@/components/molecules/DestinationCard.vue";
 import { CATEGORIES } from "~~/shared/constants/categories";
 import { REGIONS } from "~~/shared/constants/regions";
 

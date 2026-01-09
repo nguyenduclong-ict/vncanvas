@@ -2,7 +2,7 @@
   <div class="relative w-full h-screen overflow-hidden">
     <div class="absolute inset-0 bg-black">
       <!-- Public assets -->
-      <img
+      <NuxtImg
         src="/images/cau-vang.jpeg"
         class="w-full h-full object-cover opacity-60 scale-110 animate-float"
         style="animation-duration: 20s"

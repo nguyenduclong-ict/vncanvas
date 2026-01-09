@@ -1,9 +1,13 @@
 <template>
   <div v-if="dest" class="min-h-screen">
     <div class="relative h-[60vh] w-full">
-      <img
+      <NuxtImg
         :src="getImageUrl(dest.thumbnail)"
+        format="webp"
+        loading="eager"
+        preload
         class="w-full h-full object-cover"
+        alt="Hero Image"
       />
       <!-- Bottom gradient for content -->
       <div

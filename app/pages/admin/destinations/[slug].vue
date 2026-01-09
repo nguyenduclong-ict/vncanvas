@@ -578,10 +578,13 @@ const activeTab = ref("info"); // info, vi, en
           v-model="form.info.thumbnail"
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border"
         />
-        <img
+        <NuxtImg
           v-if="form.info.thumbnail"
           :src="getImageUrl(form.info.thumbnail)"
+          format="webp"
           class="mt-2 h-32 object-cover rounded"
+          height="128"
+          loading="lazy"
         />
       </div>
     </div>

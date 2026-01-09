@@ -37,7 +37,7 @@ config = defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiUrl: process.env.NUXT_PUBLIC_API_URL,
-      r2PublicDomain: process.env.R2_PUBLIC_DOMAIN || "https://pub-xxxx.r2.dev", // Update with real domain later
+      assetsUrl: process.env.NUXT_PUBLIC_ASSET_URL, // Update with real domain later
     },
   },
   devtools: { enabled: true },
@@ -48,7 +48,23 @@ config = defineNuxtConfig({
     "@nuxtjs/seo",
     "nuxt-security",
     "./modules/local-r2",
+    "@nuxt/image",
   ],
+
+  image:
+    process.env.NODE_ENV === "production"
+      ? {
+          domains: [String(process.env.NUXT_PUBLIC_ASSET_URL || "")].filter(
+            Boolean
+          ),
+          provider: "cloudflare",
+          cloudflare: {
+            baseURL: process.env.NUXT_PUBLIC_ASSET_URL,
+          },
+        }
+      : {
+          domains: ["http://localhost:3010"],
+        },
 
   // SEO Configuration
   site: {
@@ -81,15 +97,7 @@ config = defineNuxtConfig({
 
   security: {
     headers: {
-      contentSecurityPolicy: {
-        "img-src": [
-          "'self'",
-          "data:",
-          "https://*.r2.dev",
-          "https://*.cloudflarestorage.com",
-          "https://assets.vncanvas.com",
-        ],
-      },
+      contentSecurityPolicy: false,
     },
   },
 

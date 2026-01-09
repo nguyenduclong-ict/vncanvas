@@ -4,9 +4,13 @@
     <div
       class="relative h-[60vh] flex items-center justify-center overflow-hidden"
     >
-      <img
+      <NuxtImg
         :src="getImageUrl(headerImage)"
+        format="webp"
+        quality="80"
+        loading="eager"
         class="absolute inset-0 w-full h-full object-cover opacity-50"
+        alt="Region Hero"
       />
       <div
         class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-black/30"

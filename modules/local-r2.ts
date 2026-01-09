@@ -19,8 +19,15 @@ export default defineNuxtModule({
       handler: resolver.resolve("./runtime/r2-handler"),
     });
 
-    // Ensure r2PublicDomain is empty so useImageUrl generates relative paths
+    // Ensure assetsUrl is empty so useImageUrl generates relative paths
     // causing requests to hit the server handler above.
-    nuxt.options.runtimeConfig.public.r2PublicDomain = "";
+
+    const host = nuxt.options.devServer.host || "localhost";
+    const port = nuxt.options.devServer.port || 3000;
+    const protocol = nuxt.options.devServer.https ? "https" : "http";
+
+    const serverUrl = `${protocol}://${host}:${port}`;
+
+    nuxt.options.runtimeConfig.public.assetsUrl = serverUrl;
   },
 });

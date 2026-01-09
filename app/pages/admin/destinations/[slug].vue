@@ -3,6 +3,7 @@ import TranslationForm from "~/components/organisms/TranslationForm.vue";
 import { CATEGORIES } from "~~/shared/constants/categories";
 import { MOOD_TAGS } from "~~/shared/constants/moods";
 import TagInput from "~/components/molecules/TagInput.vue";
+import { RotateCcw } from "lucide-vue-next";
 
 definePageMeta({
   layout: "admin",
@@ -12,9 +13,27 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const slug = route.params.slug as string;
-const { data, refresh } = await useAdminFetch(
+
+// View mode: 'draft' (default, editable) or 'published' (readonly)
+const viewMode = ref<"draft" | "published">("draft");
+const hasDraft = ref(false);
+const isPublishing = ref(false);
+
+// Initial fetch
+const { data, refresh: refreshData } = await useAdminFetch(
   `/api/admin/destinations/${slug}`
 );
+
+// Custom refresh that respects viewMode
+const refresh = async () => {
+  const url =
+    viewMode.value === "published"
+      ? `/api/admin/destinations/${slug}?view=published`
+      : `/api/admin/destinations/${slug}`;
+  const result = await adminFetch(url);
+  // Update data manually
+  (data as any).value = result;
+};
 
 interface TranslationForm {
   title: string;
@@ -53,6 +72,11 @@ const form = reactive<FormState>({
 const updateForm = (newData: any) => {
   if (!newData) return;
 
+  // Update hasDraft from API response
+  if (newData.hasDraft !== undefined) {
+    hasDraft.value = newData.hasDraft;
+  }
+
   if (newData.info) {
     form.info = { ...newData.info };
     if (!form.info.sourceUrls) form.info.sourceUrls = [];
@@ -75,6 +99,11 @@ const updateForm = (newData: any) => {
 // Sync data to form when fetched
 watch(data, updateForm, { immediate: true, deep: true });
 
+// Refresh when view mode changes
+watch(viewMode, () => {
+  refresh();
+});
+
 const isSaving = ref(false);
 const isGenerating = ref(false);
 
@@ -82,6 +111,11 @@ const isGenerating = ref(false);
 // No manual parsing needed if API returns JSON
 
 const save = async () => {
+  if (viewMode.value === "published") {
+    alert("Cannot save in published view. Switch to Draft view to edit.");
+    return;
+  }
+
   isSaving.value = true;
   try {
     const payload = JSON.parse(JSON.stringify(form));
@@ -92,13 +126,93 @@ const save = async () => {
       method: "PUT",
       body: payload,
     });
-    alert("Saved successfully!");
+    alert("Saved to draft!");
     refresh();
   } catch (e) {
     alert("Error saving");
     console.error(e);
   } finally {
     isSaving.value = false;
+  }
+};
+
+// Publish draft to published (Merge changes)
+const publishChanges = async () => {
+  if (!hasDraft.value) {
+    alert("No draft changes to publish.");
+    return;
+  }
+
+  if (!confirm("Publish all draft changes? This will update the live content."))
+    return;
+
+  // info.id must exist
+  const destId = form?.info?.id;
+  if (!destId) {
+    alert("Error: Missing Destination ID");
+    return;
+  }
+
+  isPublishing.value = true;
+  try {
+    // 1. Merge draft changes
+    await adminFetch(`/api/admin/destinations/bulk`, {
+      method: "POST",
+      body: {
+        ids: [destId],
+        action: "merge_draft",
+      },
+    });
+
+    // 2. Ensure visible (Publish) if not already
+    if (!form.info.isPublished) {
+      await adminFetch(`/api/admin/destinations/bulk`, {
+        method: "POST",
+        body: {
+          ids: [destId],
+          action: "publish",
+        },
+      });
+    }
+
+    alert("Published successfully!");
+    hasDraft.value = false;
+    refresh();
+  } catch (e: any) {
+    alert("Error publishing: " + (e.message || e));
+    console.error(e);
+  } finally {
+    isPublishing.value = false;
+  }
+};
+
+const toggleVisibility = async () => {
+  const destId = form?.info?.id;
+  if (!destId) return;
+
+  const isPublished = form.info.isPublished;
+  const action = isPublished ? "unpublish" : "publish"; // publish = set visible, unpublish = set hidden
+
+  if (
+    !confirm(
+      `Are you sure you want to ${
+        isPublished ? "hide (unpublish)" : "show (publish)"
+      } this destination?`
+    )
+  )
+    return;
+
+  try {
+    await adminFetch(`/api/admin/destinations/bulk`, {
+      method: "POST",
+      body: {
+        ids: [destId],
+        action,
+      },
+    });
+    refresh();
+  } catch (e: any) {
+    alert("Error updating visibility: " + (e.message || e));
   }
 };
 
@@ -128,6 +242,32 @@ const checkAiGenStatus = async () => {
 
 // Check status on mount
 onMounted(checkAiGenStatus);
+
+const resetDraft = async () => {
+  const destId = form?.info?.id;
+  if (!destId) return;
+
+  if (
+    !confirm(
+      "Are you sure you want to discard all draft changes? This action cannot be undone and will restore the content to the last published version."
+    )
+  )
+    return;
+
+  try {
+    await adminFetch(`/api/admin/destinations/bulk`, {
+      method: "POST",
+      body: {
+        ids: [destId],
+        action: "reset_draft",
+      },
+    });
+    alert("Draft reset successfully!");
+    refresh();
+  } catch (e: any) {
+    alert("Error resetting draft: " + (e.message || e));
+  }
+};
 
 const generateContent = async () => {
   if (!form.info.sourceUrls || form.info.sourceUrls.length === 0) {
@@ -167,11 +307,27 @@ const activeTab = ref("info"); // info, vi, en
 <template>
   <div v-if="form.info">
     <div
-      class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6"
+      class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 flex-wrap"
     >
-      <h2 class="text-2xl font-bold text-gray-800 break-all">
-        Edit: {{ form.info.name }}
-      </h2>
+      <div class="flex flex-col">
+        <div class="flex items-center gap-3">
+          <h2 class="text-2xl font-bold text-gray-800 break-all">
+            Edit: {{ form.info.name }}
+          </h2>
+          <!-- Visibility Badge -->
+          <span
+            :class="[
+              'px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wide',
+              form.info.isPublished
+                ? 'bg-green-100 text-green-800'
+                : 'bg-gray-100 text-gray-800',
+            ]"
+          >
+            {{ form.info.isPublished ? "Visible" : "Hidden" }}
+          </span>
+        </div>
+      </div>
+
       <div class="flex items-center gap-2 shrink-0">
         <button
           @click="router.back()"
@@ -180,28 +336,61 @@ const activeTab = ref("info"); // info, vi, en
           Back
         </button>
 
+        <!-- View Mode Toggle -->
+        <div class="flex items-center bg-gray-100 rounded-lg p-1 border">
+          <button
+            @click="viewMode = 'draft'"
+            :class="[
+              'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
+              viewMode === 'draft'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-900',
+            ]"
+          >
+            Draft
+            <span
+              v-if="hasDraft"
+              class="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800"
+            >
+              Drafting
+            </span>
+          </button>
+          <button
+            @click="viewMode = 'published'"
+            :class="[
+              'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
+              viewMode === 'published'
+                ? 'bg-white text-gray-900 shadow-sm'
+                : 'text-gray-500 hover:text-gray-900',
+            ]"
+          >
+            Published
+          </button>
+        </div>
+
+        <div class="h-6 w-px bg-gray-300 mx-2"></div>
+
         <!-- AI Gen Status Badge -->
         <div
           v-if="aiGenStatus"
-          class="flex items-center gap-2 px-4 py-2 rounded"
-          :class="{
-            'bg-yellow-100 text-yellow-800': aiGenStatus === 'queued',
-            'bg-blue-100 text-blue-800': aiGenStatus === 'processing',
-            'bg-green-100 text-green-800': aiGenStatus === 'completed',
-            'bg-red-100 text-red-800': aiGenStatus === 'error',
-          }"
+          class="flex items-center gap-2 px-3 py-1.5 rounded bg-gray-50 border text-sm"
         >
           <span v-if="aiGenStatus === 'processing'" class="animate-spin">
             ⏳
           </span>
           <span v-else-if="aiGenStatus === 'queued'">🕐</span>
-          <span v-else-if="aiGenStatus === 'completed'">✅</span>
+          <span
+            v-else-if="aiGenStatus === 'completed' || aiGenStatus === 'done'"
+          >
+            ✅
+          </span>
           <span v-else-if="aiGenStatus === 'error'">❌</span>
           <span class="font-medium capitalize">{{ aiGenStatus }}</span>
         </div>
 
         <button
           @click="generateContent"
+          v-if="viewMode === 'draft'"
           :disabled="
             isGenerating ||
             aiGenStatus === 'queued' ||
@@ -210,15 +399,53 @@ const activeTab = ref("info"); // info, vi, en
           class="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2 disabled:opacity-50 hover:bg-blue-700 transition-colors"
         >
           <span v-if="isGenerating">Adding...</span>
-          <span v-else>AI Gen Content</span>
+          <span v-else>AI Gen</span>
         </button>
+
+        <button
+          @click="resetDraft"
+          v-if="viewMode === 'draft' && hasDraft"
+          class="bg-white text-red-600 px-4 py-2 rounded flex items-center gap-2 border border-red-200 hover:bg-red-50 transition-colors"
+          title="Discard draft changes"
+        >
+          <RotateCcw class="w-4 h-4" />
+          <span>Reset</span>
+        </button>
+
         <button
           @click="save"
+          v-if="viewMode === 'draft'"
           :disabled="isSaving"
           class="bg-emerald-600 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-emerald-700 transition-colors"
         >
           <span v-if="isSaving">Saving...</span>
-          <span v-else>Save Changes</span>
+          <span v-else>Save Draft</span>
+        </button>
+
+        <!-- Toggle Visibility Button -->
+        <button
+          @click="toggleVisibility"
+          :class="[
+            'px-4 py-2 rounded flex items-center gap-2 transition-colors border',
+            form.info.isPublished
+              ? 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+              : 'bg-white text-emerald-700 border-emerald-300 hover:bg-emerald-50',
+          ]"
+        >
+          <span>
+            {{ form.info.isPublished ? "Set Hidden" : "Set Visible" }}
+          </span>
+        </button>
+
+        <!-- Publish Changes Button -->
+        <button
+          @click="publishChanges"
+          v-if="hasDraft && viewMode === 'draft'"
+          :disabled="isPublishing"
+          class="bg-indigo-600 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-indigo-700 transition-colors shadow-sm"
+        >
+          <span v-if="isPublishing">Publishing...</span>
+          <span v-else>Apply Draft</span>
         </button>
       </div>
     </div>

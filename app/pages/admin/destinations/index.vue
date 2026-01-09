@@ -7,6 +7,7 @@ import {
   RefreshCcw,
   Search,
   Sparkles,
+  ArrowUpCircle,
 } from "lucide-vue-next";
 import Pagination from "~/components/molecules/Pagination.vue";
 import { CATEGORIES } from "~~/shared/constants/categories";
@@ -124,7 +125,9 @@ const hasActiveFilters = computed(() => {
   );
 });
 
-async function handleBulkAction(action: "delete" | "publish" | "unpublish") {
+async function handleBulkAction(
+  action: "delete" | "publish" | "unpublish" | "merge_draft"
+) {
   if (action === "delete") {
     if (
       !confirm(
@@ -472,17 +475,29 @@ onUnmounted(() => {
         </button>
         <div class="w-px bg-emerald-200 mx-1"></div>
         <button
+          @click="handleBulkAction('merge_draft')"
+          class="flex items-center gap-1 px-3 py-1.5 bg-purple-50 border border-purple-200 text-purple-700 rounded hover:bg-purple-100 text-sm font-medium transition-colors"
+          :disabled="isLoading"
+          title="Apply draft changes to published version"
+        >
+          <ArrowUpCircle class="w-4 h-4" />
+          Update Content
+        </button>
+        <div class="w-px bg-emerald-200 mx-1"></div>
+        <button
           @click="handleBulkAction('publish')"
           class="flex items-center gap-1 px-3 py-1.5 bg-white border border-emerald-200 text-emerald-700 rounded hover:bg-emerald-50 text-sm font-medium transition-colors"
           :disabled="isLoading"
+          title="Make selected items visible"
         >
           <CheckCircle class="w-4 h-4" />
-          Publish
+          Set Visible
         </button>
         <button
           @click="handleBulkAction('unpublish')"
           class="flex items-center gap-1 px-3 py-1.5 bg-white border border-emerald-200 text-gray-600 rounded hover:bg-gray-50 text-sm font-medium transition-colors"
           :disabled="isLoading"
+          title="Hide selected items from public view"
         >
           <XCircle class="w-4 h-4" />
           Draft
@@ -656,6 +671,13 @@ onUnmounted(() => {
                 class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
               >
                 {{ dest.isPublished ? "Published" : "Draft" }}
+              </span>
+              <span
+                v-if="dest.hasDraft"
+                class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800"
+                title="Has unsaved changes"
+              >
+                Drafting
               </span>
             </td>
             <td

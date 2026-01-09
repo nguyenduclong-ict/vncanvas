@@ -151,46 +151,58 @@ export const aiQueueConsumer = async (data: { slug: string }, event: any) => {
     const thumbnail = Object.values(localImageMap)[0] || "";
     const coverImage = Object.values(localImageMap)[1] || thumbnail;
 
-    // 4. Update Database
-    console.log(`[AI Queue] Updating database for ${slug}...`);
+    // 4. Update Database - Save to DRAFT fields, not published
+    console.log(`[AI Queue] Saving to draft for ${slug}...`);
+
+    // Save destination draft
+    const destDraft = {
+      thumbnail: thumbnail,
+      coverImage: coverImage,
+    };
 
     await db
       .update(destinations)
       .set({
-        thumbnail: thumbnail,
-        coverImage: coverImage,
+        draft: destDraft,
         aiGenStatus: "done",
       })
       .where(eq(destinations.id, dest.id));
 
+    // Save translation drafts
     for (const lang of langs) {
       const content = aiResult[lang];
       if (content) {
-        await db
-          .insert(destinationTranslations)
-          .values({
+        const translationDraft = {
+          title: content.title,
+          shortDesc: content.short_desc,
+          longDesc: content.long_desc,
+          detailJson: content.detail_json,
+        };
+
+        // Check if translation exists
+        const existingTrans = await db.query.destinationTranslations.findFirst({
+          where: (t, { and, eq }) =>
+            and(eq(t.destinationId, dest.id), eq(t.languageCode, lang)),
+        });
+
+        if (existingTrans) {
+          // Update existing translation's draft
+          await db
+            .update(destinationTranslations)
+            .set({ draft: translationDraft })
+            .where(eq(destinationTranslations.id, existingTrans.id));
+        } else {
+          // Create new translation with draft data
+          await db.insert(destinationTranslations).values({
             destinationId: dest.id,
             languageCode: lang,
-            title: content.title,
-            shortDesc: content.short_desc,
-            longDesc: content.long_desc,
-            detailJson: JSON.stringify(content.detail_json),
-          })
-          .onConflictDoUpdate({
-            target: [
-              destinationTranslations.destinationId,
-              destinationTranslations.languageCode,
-            ],
-            set: {
-              title: content.title,
-              shortDesc: content.short_desc,
-              longDesc: content.long_desc,
-              detailJson: JSON.stringify(content.detail_json),
-            },
+            title: content.title, // Required field
+            draft: translationDraft,
           });
+        }
       }
     }
-    console.log(`[AI Queue] Completed: ${slug}`);
+    console.log(`[AI Queue] Completed (saved to draft): ${slug}`);
   } catch (error: any) {
     console.error(`[AI Queue] Error processing ${slug}:`, error);
     await db

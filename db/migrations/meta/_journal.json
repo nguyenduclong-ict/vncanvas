@@ -29,6 +29,13 @@
       "when": 1767807816348,
       "tag": "0003_wakeful_jean_grey",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1767864714270,
+      "tag": "0004_low_pride",
+      "breakpoints": true
     }
   ]
 }

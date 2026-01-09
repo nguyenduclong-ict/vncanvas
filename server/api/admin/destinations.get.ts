@@ -1,4 +1,4 @@
-import { desc, eq, sql, like, and, isNull } from "drizzle-orm";
+import { desc, eq, sql, like, and, isNull, isNotNull } from "drizzle-orm";
 import { destinations, destinationTranslations } from "~~/db/schema";
 
 export default defineEventHandler(async (event) => {
@@ -14,6 +14,7 @@ export default defineEventHandler(async (event) => {
   const aiStatus = query.aiStatus as string | undefined;
   const missingLang = query.missingLang as string | undefined;
   const search = query.q as string | undefined;
+  const hasDraftFilter = query.hasDraft as string | undefined;
 
   const db = useDb(event);
 
@@ -42,6 +43,25 @@ export default defineEventHandler(async (event) => {
     conditions.push(eq(destinations.aiGenStatus, "error"));
   } else if (aiStatus === "not_generated") {
     conditions.push(isNull(destinations.aiGenStatus));
+  }
+
+  // Filter by hasDraft - check both destinations.draft and any translation.draft
+  if (hasDraftFilter === "true") {
+    conditions.push(
+      sql`(${destinations.draft} IS NOT NULL OR EXISTS (
+        SELECT 1 FROM destination_translations 
+        WHERE destination_id = destinations.id 
+        AND draft IS NOT NULL
+      ))`
+    );
+  } else if (hasDraftFilter === "false") {
+    conditions.push(
+      sql`(${destinations.draft} IS NULL AND NOT EXISTS (
+        SELECT 1 FROM destination_translations 
+        WHERE destination_id = destinations.id 
+        AND draft IS NOT NULL
+      ))`
+    );
   }
 
   if (missingLang) {
@@ -84,7 +104,13 @@ export default defineEventHandler(async (event) => {
       aiGenStatus: destinations.aiGenStatus,
       region: destinations.region,
       category: destinations.category,
+      draft: destinations.draft,
       names: sql`GROUP_CONCAT(${destinationTranslations.languageCode} || ':' || ${destinationTranslations.title}, ' | ')`,
+      hasDraftTranslation: sql<boolean>`EXISTS (
+        SELECT 1 FROM destination_translations 
+        WHERE destination_id = destinations.id 
+        AND draft IS NOT NULL
+      )`,
     })
     .from(destinations)
     .leftJoin(
@@ -105,6 +131,9 @@ export default defineEventHandler(async (event) => {
   const data = rows.map((r) => ({
     ...r,
     names: r.names ? r.names.toString() : "",
+    hasDraft: r.draft !== null || r.hasDraftTranslation,
+    draft: undefined, // Don't expose raw draft in list
+    hasDraftTranslation: undefined,
   }));
 
   return {

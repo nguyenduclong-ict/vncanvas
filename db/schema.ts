@@ -23,6 +23,17 @@ export const destinations = sqliteTable("destinations", {
     .notNull(),
   sourceUrls: text("source_urls", { mode: "json" }).$type<string[]>(), // JSON array of strings
   aiGenStatus: text("ai_gen_status"), // 'processing', 'done', 'error'
+  draft: text("draft", { mode: "json" }).$type<{
+    name?: string;
+    region?: string;
+    province?: string;
+    category?: string[];
+    moodTags?: string[];
+    thumbnail?: string;
+    coverImage?: string;
+    audioUrl?: string;
+    sourceUrls?: string[];
+  }>(),
   createdAt: text("created_at"),
 });
 
@@ -41,6 +52,12 @@ export const destinationTranslations = sqliteTable(
     shortDesc: text("short_desc"),
     longDesc: text("long_desc"),
     detailJson: text("detail_json", { mode: "json" }).$type<any>(),
+    draft: text("draft", { mode: "json" }).$type<{
+      title?: string;
+      shortDesc?: string;
+      longDesc?: string;
+      detailJson?: any;
+    }>(),
   },
   (table) => ({
     uniqueLang: uniqueIndex("dest_lang_idx").on(

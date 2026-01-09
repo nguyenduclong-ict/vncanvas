@@ -14,5 +14,11 @@
   ],
   "vars": {
     "QUEUE_SECRET": ""
-  }
+  },
+  "routes": [
+    {
+      "pattern": "api.vncanvas.com",
+      "custom_domain": true
+    }
+  ]
 }

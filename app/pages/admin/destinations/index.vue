@@ -18,6 +18,8 @@ definePageMeta({
   middleware: "admin-auth",
 });
 
+const { getImageUrl } = useImageUrl();
+
 // Filter state
 const page = ref(1);
 const searchQuery = ref("");
@@ -622,7 +624,7 @@ onUnmounted(() => {
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <img
-                :src="dest.thumbnail || ''"
+                :src="getImageUrl(dest.thumbnail)"
                 class="h-10 w-16 object-cover rounded"
               />
             </td>

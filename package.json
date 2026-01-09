@@ -19,9 +19,10 @@
     "build:api": "BUILD_TARGET=api nuxt build --dotenv .env.prod",
     "deploy:api": "npx tsx scripts/deploy_api.ts",
     "dev:api": "npx wrangler dev .output/server/index.mjs --config wrangler.worker.json",
-    "build:web": "npx tsx scripts/build_ssg.ts",
-    "deploy:web": "wrangler pages deploy dist --env-file .env.prod",
-    "deploy": "npm run build:api && npm run deploy:api && npm run build:web && npm run deploy:web"
+    "build:ssg": "npx tsx scripts/build_ssg.ts",
+    "deploy:ssg": "wrangler pages deploy dist --env-file .env.prod",
+    "deploy:web": "npm run build:ssg && npm run deploy:ssg",
+    "deploy": "npm run build:api && npm run deploy:api && npm run build:ssg && npm run deploy:ssg"
   },
   "dependencies": {
     "@google/genai": "^1.34.0",

@@ -13,6 +13,7 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const slug = route.params.slug as string;
+const { getImageUrl } = useImageUrl();
 
 // View mode: 'draft' (default, editable) or 'published' (readonly)
 const viewMode = ref<"draft" | "published">("draft");
@@ -579,7 +580,7 @@ const activeTab = ref("info"); // info, vi, en
         />
         <img
           v-if="form.info.thumbnail"
-          :src="form.info.thumbnail"
+          :src="getImageUrl(form.info.thumbnail)"
           class="mt-2 h-32 object-cover rounded"
         />
       </div>

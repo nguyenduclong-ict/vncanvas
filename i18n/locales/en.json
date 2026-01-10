@@ -63,7 +63,8 @@
   },
   "region": {
     "subtitle": "Region",
-    "destinationsTitle": "Destinations in"
+    "destinationsTitle": "Destinations in",
+    "notFound": "Region not found."
   },
   "about": {
     "title": "About VNCANVAS",

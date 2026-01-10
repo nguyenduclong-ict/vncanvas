@@ -63,7 +63,8 @@
   },
   "region": {
     "subtitle": "Vùng Miền",
-    "destinationsTitle": "Điểm Đến"
+    "destinationsTitle": "Điểm Đến",
+    "notFound": "Không tìm thấy vùng miền."
   },
   "about": {
     "title": "Về VNCANVAS",

@@ -26,6 +26,10 @@ config = defineNuxtConfig({
     "@nuxt/image",
   ],
 
+  sitemap: {
+    exclude: ["/admin/**"],
+  },
+
   image:
     process.env.NODE_ENV === "production"
       ? {
@@ -107,6 +111,7 @@ if (process.env.BUILD_TARGET === "api") {
       private: {
         queueSecret: "",
         serverUrl: "",
+        onlyApi: true,
       },
     },
     pages: false,

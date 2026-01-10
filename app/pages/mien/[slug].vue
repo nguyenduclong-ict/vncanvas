@@ -95,7 +95,7 @@ const regionKey = getRegions(locale.value).find(
 if (!regionKey) {
   throw createError({
     statusCode: 404,
-    statusMessage: "Region not found",
+    statusMessage: $t("region.notFound"),
   });
 }
 
@@ -114,10 +114,10 @@ const headerImage = computed(
 );
 
 useSeoMeta({
-  title: computed(() => `${info.value.name} - Vietnam Canvas`),
-  description: computed(() => info.value.description),
-  ogTitle: computed(() => `${info.value.name} - Vietnam Canvas`),
-  ogDescription: computed(() => info.value.slogan),
+  title: info.value.name,
+  description: info.value.description,
+  ogTitle: info.value.name,
+  ogDescription: info.value.slogan,
   ogImage: headerImage,
   twitterCard: "summary_large_image",
 });

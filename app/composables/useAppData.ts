@@ -1,7 +1,7 @@
 // Composable to fetch app data from API
 // All data comes from server API endpoints
 
-import type { Destination, RegionInfo, Category } from "~~/shared/types";
+import type { Destination } from "~~/shared/types";
 
 export const useDestinations = (
   options: { region?: string | Ref<string>; limit?: number } = {}
@@ -22,7 +22,6 @@ export const useDestination = (slug: string | Ref<string>) => {
   const { locale } = useI18n();
 
   return useFetch<Destination>(`/api/destinations/${slugValue}`, {
-    key: [slugValue].join("-"),
     baseURL: useRuntimeConfig().public.apiUrl || undefined,
     query: {
       lang: locale.value,

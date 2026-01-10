@@ -1,8 +1,4 @@
 export default defineEventHandler((event) => {
-  if (!event.path.startsWith("/api/")) {
-    return;
-  }
-
   const allowedOrigins = [
     "https://vncanvas.pages.dev",
     "https://vncanvas.com",

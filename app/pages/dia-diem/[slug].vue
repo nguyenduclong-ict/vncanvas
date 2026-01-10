@@ -93,6 +93,13 @@ const slug = computed(() => route.params.slug as string);
 
 const { data: dest } = await useDestination(slug);
 
+if (!dest.value) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: $t("detail.notFound"),
+  });
+}
+
 // Map all category keys to translated labels
 const categoryNames = computed(() => {
   if (!dest.value?.category) return "";
@@ -138,17 +145,11 @@ const readTime = computed(() => {
 });
 
 useSeoMeta({
-  title: computed(() =>
-    dest.value
-      ? `${dest.value.title} - Vietnam Canvas`
-      : "Chi tiết - Vietnam Canvas"
-  ),
-  description: computed(() =>
-    dest.value ? dest.value.longDesc : "Khám phá điểm đến du lịch Việt Nam"
-  ),
-  ogTitle: computed(() => dest.value?.title || "Destination"),
-  ogDescription: computed(() => dest.value?.shortDesc || ""),
-  ogImage: computed(() => getImageUrl(dest.value?.thumbnail) || ""),
+  title: dest.value.title,
+  description: dest.value.longDesc,
+  ogTitle: dest.value.title,
+  ogDescription: dest.value.shortDesc,
+  ogImage: getImageUrl(dest.value.thumbnail) || "",
   twitterCard: "summary_large_image",
 });
 </script>

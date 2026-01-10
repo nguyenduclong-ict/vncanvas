@@ -43,8 +43,8 @@
 
 <script setup lang="ts">
 import { useImageUrl } from "~/composables/useImageUrl";
-import { CATEGORIES } from "~~/shared/constants/categories";
-import { REGIONS } from "~~/shared/constants/regions";
+import { getCategories } from "~~/shared/constants/categories";
+import { getRegions } from "~~/shared/constants/regions";
 
 const props = defineProps<{
   destinations: any[];
@@ -55,19 +55,18 @@ const { getImageUrl } = useImageUrl();
 const { locale } = useI18n();
 
 const getCategoryLabel = (category: string | string[]) => {
-  const lang = locale.value as "vi" | "en";
+  const categories = getCategories(locale.value);
   const keys = Array.isArray(category) ? category : [category];
   return keys
     .map((key) => {
-      const cat = CATEGORIES.find((c) => c.key === key);
-      return cat?.label[lang] || key;
+      const cat = categories.find((c) => c.key === key);
+      return cat?.name || key;
     })
     .join(", ");
 };
 
 const getRegionLabel = (region: string) => {
   const lang = locale.value as "vi" | "en";
-  const r = REGIONS.find((r) => r.key === region);
-  return r?.label[lang] || region;
+  return getRegions(lang).find((r) => r.key === region)?.name;
 };
 </script>

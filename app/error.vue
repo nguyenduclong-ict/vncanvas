@@ -19,9 +19,8 @@
     >
       <!-- Background Image with Overlay -->
       <div class="absolute inset-0 z-0">
-        <NuxtImg
+        <img
           src="https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=1920"
-          format="webp"
           loading="eager"
           class="w-full h-full object-cover grayscale opacity-20 scale-105"
           alt="Misty landscape"
@@ -50,12 +49,12 @@
         <h2
           class="text-2xl md:text-3xl font-serif font-bold text-white mb-4 tracking-wide"
         >
-          {{ errorTitle }}
+          {{ $t("error.title") }}
         </h2>
         <p
           class="text-gray-400 mb-10 leading-relaxed font-light text-sm md:text-base px-8"
         >
-          {{ error?.message || errorMessage }}
+          {{ error?.message || $t("error.message") }}
         </p>
 
         <!-- Actions -->
@@ -69,13 +68,13 @@
             <ArrowLeft
               class="w-4 h-4 group-hover:-translate-x-1 transition-transform"
             />
-            {{ goBackText }}
+            {{ $t("error.goBack") }}
           </button>
 
           <button
             class="px-8 py-3 text-gray-400 hover:text-white text-sm font-medium transition-colors border-b border-transparent hover:border-white/30"
           >
-            {{ helpText }}
+            {{ $t("error.help") }}
           </button>
         </div>
       </div>
@@ -104,52 +103,6 @@ const toggleLang = () => {
 };
 
 const handleError = () => clearError({ redirect: "/" });
-
-// Local translations fallback or keys to be added to i18n files
-// Ideally these should be in your locale files, but for now we rely on keys.
-// If keys don't exist, we might want to provide defaults here or update locale files.
-// For the purpose of this task, I'll assume usage of t() with keys that map to the text in mockup,
-// OR I will define messages here if not using external file heavily yet.
-// Given the existing i18n setup, I should probably add these usage keys to en.json/vi.json
-// BUT simply using hardcoded text for now with t() fallback or computed might be safer if I can't edit json files easily/reliably.
-// Let's use a computed translation map locally to match the mockup exactly if keys are missing.
-
-const translations = {
-  vi: {
-    title: "Bạn đã lạc lối?",
-    message:
-      "Điểm đến này chưa được khai phá trên bản đồ của chúng tôi, hoặc con đường bạn tìm kiếm đang bị màn sương mù che khuất.",
-    go_back: "Quay lại",
-    help: "Trung tâm hỗ trợ",
-  },
-  en: {
-    title: "Are you lost?",
-    message:
-      "This destination has not been discovered on our map, or the path you seek is obscured by the heavy mist.",
-    go_back: "Go Back",
-    help: "Help Center",
-  },
-};
-
-// Override standard t function for these specific keys if needed,
-// or simpler: just use the computed values directly for this page
-const errorTitle = computed(
-  () =>
-    translations[locale.value as "vi" | "en"]?.title || translations.vi.title
-);
-const errorMessage = computed(
-  () =>
-    translations[locale.value as "vi" | "en"]?.message ||
-    translations.vi.message
-);
-const goBackText = computed(
-  () =>
-    translations[locale.value as "vi" | "en"]?.go_back ||
-    translations.vi.go_back
-);
-const helpText = computed(
-  () => translations[locale.value as "vi" | "en"]?.help || translations.vi.help
-);
 </script>
 
 <style scoped>

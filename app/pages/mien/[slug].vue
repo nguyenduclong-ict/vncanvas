@@ -82,21 +82,29 @@ import FeatureItem from "@/components/molecules/FeatureItem.vue";
 import DestinationGrid from "@/components/organisms/DestinationGrid.vue";
 import SectionHeading from "@/components/atoms/SectionHeading.vue";
 import { useImageUrl } from "~/composables/useImageUrl";
+import { getRegions } from "~~/shared/constants/regions";
 
+const { locale } = useI18n();
 const route = useRoute();
 const { getImageUrl } = useImageUrl();
-const { data: regionInfo } = await useRegions(`mien-regionInfo`);
-const regionKey = computed(() => route.params.slug as string);
-const { data: searchResult } = await useDestinations(`mien-destinations`, {
+
+const regionKey = getRegions(locale.value).find(
+  (region) => region.slug === route.params.slug
+)?.key;
+
+if (!regionKey) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: "Region not found",
+  });
+}
+
+const { data: searchResult } = await useDestinations({
   region: regionKey,
 });
 
 const info = computed(() => {
-  return (
-    (regionInfo.value as any)?.[regionKey.value] ||
-    (regionInfo.value as any)?.["north"] ||
-    {}
-  );
+  return getRegions(locale.value).find((r) => r.key === regionKey)!;
 });
 
 const regionItems = computed(() => searchResult.value?.data || []);

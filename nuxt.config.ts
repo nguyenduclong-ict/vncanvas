@@ -1,7 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 // Routes are generated dynamically by server/plugins/prerender-routes.ts from database
 import fs from "fs";
-import type { HTTPMethod } from "nuxt-security";
 
 const wranglerWorker = JSON.parse(
   fs.readFileSync("wrangler.worker.json", "utf-8")
@@ -9,35 +8,12 @@ const wranglerWorker = JSON.parse(
 
 let config;
 
-const securitySettings = {
-  corsHandler: {
-    origin: [
-      "https://vncanvas.pages.dev",
-      "https://vncanvas.com",
-      "http://localhost:3000",
-      "https://*.vncanvas.pages.dev",
-    ],
-    methods: [
-      "GET",
-      "HEAD",
-      "PUT",
-      "PATCH",
-      "POST",
-      "DELETE",
-      "OPTIONS",
-    ] as HTTPMethod[],
-    allowHeaders: ["Content-Type", "Authorization"],
-    exposeHeaders: ["Content-Length", "Content-Range"],
-    credentials: true,
-  },
-};
-
 config = defineNuxtConfig({
   compatibilityDate: new Date().toISOString().split("T")[0] as any,
   runtimeConfig: {
     public: {
-      apiUrl: process.env.NUXT_PUBLIC_API_URL,
-      assetsUrl: process.env.NUXT_PUBLIC_ASSET_URL, // Update with real domain later
+      apiUrl: "",
+      assetsUrl: "",
     },
   },
   devtools: { enabled: true },
@@ -46,7 +22,6 @@ config = defineNuxtConfig({
     "@nuxtjs/i18n",
     "@vueuse/nuxt",
     "@nuxtjs/seo",
-    "nuxt-security",
     "./modules/local-r2",
     "@nuxt/image",
   ],
@@ -95,12 +70,6 @@ config = defineNuxtConfig({
     enabled: true,
   },
 
-  security: {
-    headers: {
-      contentSecurityPolicy: false,
-    },
-  },
-
   css: ["~/assets/css/main.css"],
 
   i18n: {
@@ -116,9 +85,6 @@ config = defineNuxtConfig({
 
   routeRules: {
     "/admin/**": { ssr: false, prerender: false },
-    "api/**": {
-      security: securitySettings,
-    },
   },
 
   nitro: {
@@ -131,7 +97,6 @@ config = defineNuxtConfig({
 
 // For static build
 if (process.env.BUILD_TARGET === "static") {
-  config.modules?.push("./modules/prerender");
   config.prerender = { enabled: true };
 }
 
@@ -140,19 +105,25 @@ if (process.env.BUILD_TARGET === "api") {
   config = defineNuxtConfig({
     runtimeConfig: {
       private: {
-        queueSecret: process.env.QUEUE_SECRET,
+        queueSecret: "",
+        serverUrl: "",
       },
     },
     pages: false,
-    modules: ["nuxt-security"],
+    modules: ["@nuxtjs/i18n"],
+    i18n: {
+      strategy: "prefix_except_default",
+      defaultLocale: "vi",
+      locales: [
+        { code: "vi", iso: "vi-VN", name: "Tiếng Việt", file: "vi.json" },
+        { code: "en", iso: "en-US", name: "English", file: "en.json" },
+      ],
+      langDir: "locales",
+      detectBrowserLanguage: false,
+    },
     hooks: {
       "prerender:routes": ({ routes }) => {
         routes.clear();
-      },
-    },
-    routeRules: {
-      "api/**": {
-        security: securitySettings,
       },
     },
     nitro: {

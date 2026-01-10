@@ -3,11 +3,7 @@ import { computed, ref } from "vue";
 
 interface TagOption {
   key: string;
-  label: {
-    en: string;
-    vi?: string;
-    [key: string]: any;
-  };
+  label: string;
 }
 
 const props = defineProps<{
@@ -29,7 +25,7 @@ const selectedTags = computed({
 
 const getLabel = (key: string) => {
   const opt = props.options.find((o) => o.key === key);
-  return opt ? opt.label.en : key;
+  return opt ? opt.label : key;
 };
 
 const removeTag = (key: string) => {
@@ -113,10 +109,7 @@ const removeTag = (key: string) => {
                 />
                 <div class="flex flex-col">
                   <span class="text-sm font-medium text-gray-900">
-                    {{ option.label.en }}
-                  </span>
-                  <span v-if="option.label.vi" class="text-xs text-gray-500">
-                    {{ option.label.vi }}
+                    {{ option.label }}
                   </span>
                 </div>
               </label>

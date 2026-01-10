@@ -1,18 +1,47 @@
-export const MOOD_TAGS = [
-  { key: "peaceful", label: { vi: "Yên bình", en: "Peaceful" } },
-  { key: "adventure", label: { vi: "Phiêu lưu", en: "Adventure" } },
-  { key: "culture", label: { vi: "Văn hóa", en: "Culture" } },
-  { key: "history", label: { vi: "Lịch sử", en: "History" } },
-  { key: "nature", label: { vi: "Thiên nhiên", en: "Nature" } },
-  { key: "cuisine", label: { vi: "Ẩm thực", en: "Cuisine" } },
-  { key: "spiritual", label: { vi: "Tâm linh", en: "Spiritual" } },
-  { key: "romantic", label: { vi: "Lãng mạn", en: "Romantic" } },
-  { key: "family", label: { vi: "Gia đình", en: "Family" } },
-  { key: "luxury", label: { vi: "Sang trọng", en: "Luxury" } },
-  { key: "budget", label: { vi: "Tiết kiệm", en: "Budget" } },
-  { key: "beach", label: { vi: "Biển đảo", en: "Beach" } },
-  { key: "mountain", label: { vi: "Núi rừng", en: "Mountain" } },
-  { key: "city", label: { vi: "Thành phố", en: "City" } },
-  { key: "nightlife", label: { vi: "Sôi động", en: "Nightlife" } },
-  { key: "shopping", label: { vi: "Mua sắm", en: "Shopping" } },
-];
+export type MoodTag = {
+  name: string;
+  key: string;
+};
+
+export const MOOD_TAGS_DATA: Record<string, MoodTag[]> = {
+  vi: [
+    { name: "Yên bình", key: "peaceful" },
+    { name: "Phiêu lưu", key: "adventure" },
+    { name: "Văn hóa", key: "culture" },
+    { name: "Lịch sử", key: "history" },
+    { name: "Thiên nhiên", key: "nature" },
+    { name: "Ẩm thực", key: "cuisine" },
+    { name: "Tâm linh", key: "spiritual" },
+    { name: "Lãng mạn", key: "romantic" },
+    { name: "Gia đình", key: "family" },
+    { name: "Sang trọng", key: "luxury" },
+    { name: "Tiết kiệm", key: "budget" },
+    { name: "Biển đảo", key: "beach" },
+    { name: "Núi rừng", key: "mountain" },
+    { name: "Thành phố", key: "city" },
+    { name: "Sôi động", key: "nightlife" },
+    { name: "Mua sắm", key: "shopping" },
+  ],
+  en: [
+    { name: "Peaceful", key: "peaceful" },
+    { name: "Adventure", key: "adventure" },
+    { name: "Culture", key: "culture" },
+    { name: "History", key: "history" },
+    { name: "Nature", key: "nature" },
+    { name: "Cuisine", key: "cuisine" },
+    { name: "Spiritual", key: "spiritual" },
+    { name: "Romantic", key: "romantic" },
+    { name: "Family", key: "family" },
+    { name: "Luxury", key: "luxury" },
+    { name: "Budget", key: "budget" },
+    { name: "Beach", key: "beach" },
+    { name: "Mountain", key: "mountain" },
+    { name: "City", key: "city" },
+    { name: "Nightlife", key: "nightlife" },
+    { name: "Shopping", key: "shopping" },
+  ],
+};
+
+export const getMoodTags = (locale: string): MoodTag[] => {
+  return (MOOD_TAGS_DATA as any)[locale] || MOOD_TAGS_DATA.vi;
+};

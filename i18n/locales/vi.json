@@ -36,7 +36,8 @@
   "home": {
     "journeySubtitle": "Hành trình xuyên Việt",
     "journeyTitle": "Dọc Miền Đất Nước",
-    "categoriesTitle": "Khám Phá Theo Sở Thích"
+    "categoriesTitle": "Khám Phá Theo Sở Thích",
+    "moodTagsTitle": "Khám Phá Theo Cảm Xúc"
   },
   "search": {
     "title": "Tìm Kiếm Hành Trình",
@@ -181,5 +182,11 @@
       "ogTitle": "Policy & Terms - Vietnam Canvas",
       "ogDescription": "Learn about the policies and terms of use for Vietnam Canvas, a non-profit project promoting Vietnam tourism."
     }
+  },
+  "error": {
+    "title": "Bạn đã lạc lối?",
+    "message": "Điểm đến này chưa được khai phá trên bản đồ của chúng tôi, hoặc con đường bạn tìm kiếm đang bị màn sương mù che khuất.",
+    "goBack": "Quay lại",
+    "help": "Trung tâm hỗ trợ"
   }
 }

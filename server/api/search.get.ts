@@ -1,5 +1,5 @@
 // Search API - query destinations from database with filters and pagination
-import { and, count, eq, like, or } from "drizzle-orm";
+import { and, count, eq, like, or, sql } from "drizzle-orm";
 import { destinations, destinationTranslations } from "~~/db/schema";
 
 export default defineEventHandler(async (event) => {
@@ -65,21 +65,21 @@ export default defineEventHandler(async (event) => {
     ...conditions
   );
 
-  // Get total count
-  const countResult = await db
-    .select({ total: count() })
+  // Get total count of UNIQUE destinations (not translation rows)
+  const uniqueDestIds = await db
+    .selectDistinct({ id: destinations.id })
     .from(destinations)
     .innerJoin(
       destinationTranslations,
       eq(destinations.id, destinationTranslations.destinationId)
-    ) // Explicit inner join for count
-    .where(whereClause)
-    .get();
+    )
+    .where(whereClause);
 
-  const total = countResult?.total || 0;
+  const total = uniqueDestIds.length;
 
-  // Get paginated results
-  const results = await db
+  // Get paginated results with language priority
+  // Order by: 1) Requested language first, 2) destination ID
+  const rawResults = await db
     .select({
       id: destinations.id,
       slug: destinations.slug,
@@ -97,12 +97,33 @@ export default defineEventHandler(async (event) => {
       eq(destinations.id, destinationTranslations.destinationId)
     )
     .where(whereClause)
-    // .orderBy(destinations.id) // Ordering might be ambiguous with duplicates, but okay for now
-    .limit(limit)
-    .offset(offset);
+    .orderBy(
+      // Prioritize requested language (0 for requested lang, 1 for 'vi')
+      sql`CASE WHEN ${destinationTranslations.languageCode} = ${lang} THEN 0 ELSE 1 END`,
+      destinations.id
+    );
+
+  // Deduplicate: Keep only the first (prioritized) translation per destination
+  const seenIds = new Set<number>();
+  const results = [];
+
+  for (const row of rawResults) {
+    if (!seenIds.has(row.id)) {
+      seenIds.add(row.id);
+      results.push(row);
+
+      // Stop once we have enough for this page
+      if (results.length >= offset + limit) {
+        break;
+      }
+    }
+  }
+
+  // Apply pagination to deduplicated results
+  const paginatedResults = results.slice(offset, offset + limit);
 
   return {
-    data: results,
+    data: paginatedResults,
     pagination: {
       page,
       limit,

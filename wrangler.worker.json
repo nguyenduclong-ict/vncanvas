@@ -13,12 +13,21 @@
     }
   ],
   "vars": {
-    "QUEUE_SECRET": ""
+    "NUXT_QUEUE_SECRET": "",
+    "NUXT_SERVER_URL": ""
   },
   "routes": [
     {
       "pattern": "api.vncanvas.com",
       "custom_domain": true
     }
-  ]
+  ],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": true,
+      "persist": true
+    }
+  }
 }

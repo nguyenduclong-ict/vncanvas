@@ -1,6 +1,7 @@
-export const REGIONS_DATA: Record<string, any> = {
+export const REGIONS_DATA = {
   vi: {
     north: {
+      slug: "mien-bac",
       name: "Miền Bắc",
       slogan: "Ngàn năm văn hiến & Kỳ quan thiên nhiên",
       thumbnail: "/images/mien-bac.jpg",
@@ -25,6 +26,7 @@ export const REGIONS_DATA: Record<string, any> = {
       ],
     },
     central: {
+      slug: "mien-trung",
       name: "Miền Trung",
       slogan: "Cung đường Di sản & Biển xanh",
       thumbnail: "/images/mien-trung.jpg",
@@ -49,6 +51,7 @@ export const REGIONS_DATA: Record<string, any> = {
       ],
     },
     south: {
+      slug: "mien-nam",
       name: "Miền Nam",
       slogan: "Vùng đất Phóng khoáng & Sông nước",
       thumbnail: "/images/mien-nam.jpg",
@@ -75,7 +78,8 @@ export const REGIONS_DATA: Record<string, any> = {
   },
   en: {
     north: {
-      name: "Northern Vietnam",
+      slug: "the-north",
+      name: "The North",
       slogan: "Thousand years of civilization & Natural wonders",
       thumbnail: "/images/mien-bac.jpg",
       description:
@@ -99,7 +103,8 @@ export const REGIONS_DATA: Record<string, any> = {
       ],
     },
     central: {
-      name: "Central Vietnam",
+      slug: "the-central",
+      name: "The Central",
       slogan: "Heritage Road & Blue Sea",
       thumbnail: "/images/mien-trung.jpg",
       description:
@@ -123,7 +128,8 @@ export const REGIONS_DATA: Record<string, any> = {
       ],
     },
     south: {
-      name: "Southern Vietnam",
+      slug: "the-south",
+      name: "The South",
       slogan: "Land of Generosity & Rivers",
       thumbnail: "/images/mien-nam.jpg",
       description:
@@ -149,15 +155,11 @@ export const REGIONS_DATA: Record<string, any> = {
   },
 };
 
-const set: any = {};
-for (const localeKey in REGIONS_DATA) {
-  Object.keys(REGIONS_DATA[localeKey]).forEach((regionKey) => {
-    set[regionKey] = set[regionKey] || { key: regionKey, label: {} };
-    set[regionKey].label[localeKey] = REGIONS_DATA[localeKey][regionKey].name;
-  });
-}
+export type Region = (typeof REGIONS_DATA)["vi"]["north"] & { key: string };
 
-export const REGIONS = Object.values(set) as {
-  key: string;
-  label: Record<string, string>;
-}[];
+export const getRegions = (locale: string): Region[] => {
+  return Object.keys((REGIONS_DATA as any)[locale]).map((key) => ({
+    key,
+    ...((REGIONS_DATA as any)[locale] as any)[key],
+  }));
+};

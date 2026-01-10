@@ -36,7 +36,8 @@
   "home": {
     "journeySubtitle": "Journey Through Vietnam",
     "journeyTitle": "Along the Country",
-    "categoriesTitle": "Explore by Interest"
+    "categoriesTitle": "Explore by Interest",
+    "moodTagsTitle": "Explore by Mood"
   },
   "search": {
     "title": "Search Your Journey",
@@ -181,5 +182,11 @@
       "ogTitle": "Policy & Terms - Vietnam Canvas",
       "ogDescription": "Learn about the policies and terms of use for Vietnam Canvas, a non-profit project promoting Vietnam tourism."
     }
+  },
+  "error": {
+    "title": "Are you lost?",
+    "message": "This destination has not been discovered on our map, or the path you seek is obscured by the heavy mist.",
+    "goBack": "Go Back",
+    "help": "Help Center"
   }
 }

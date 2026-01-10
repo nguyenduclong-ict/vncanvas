@@ -31,7 +31,9 @@ export default async function buildSSG() {
     });
   }
 
-  execSync("npm run generate", { stdio: "inherit" });
+  execSync("npm run generate", {
+    stdio: "inherit",
+  });
   spawns.forEach((spawn) => {
     spawn.kill();
   });

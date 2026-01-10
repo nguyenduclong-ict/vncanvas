@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Pagination from "~/components/molecules/Pagination.vue";
+import Pagination from "~/components/admin/molecules/Pagination.vue";
 
 definePageMeta({
   layout: "admin",

@@ -26,25 +26,20 @@
           {{ $t("common.home") }}
         </NuxtLink>
         <NuxtLink
-          :to="localePath('/mien/north')"
+          v-for="region in regions"
+          :key="region.key"
+          :to="localePath(`/mien/${region.slug}`)"
           active-class="text-vn-gold"
           class="hover:text-vn-gold transition"
         >
-          {{ $t("header.north") }}
+          {{ region.name }}
         </NuxtLink>
         <NuxtLink
-          :to="localePath('/mien/central')"
+          :to="localePath('/ve-chung-toi')"
           active-class="text-vn-gold"
           class="hover:text-vn-gold transition"
         >
-          {{ $t("header.central") }}
-        </NuxtLink>
-        <NuxtLink
-          :to="localePath('/mien/south')"
-          active-class="text-vn-gold"
-          class="hover:text-vn-gold transition"
-        >
-          {{ $t("header.south") }}
+          {{ $t("common.about") }}
         </NuxtLink>
       </div>
       <div class="flex items-center gap-4">
@@ -179,25 +174,13 @@
         <BaseIcon name="x" class="w-8 h-8" />
       </button>
       <NuxtLink
+        v-for="region in regions"
+        :key="region.key"
         @click="showMenu = false"
-        :to="localePath('/mien/north')"
+        :to="localePath(`/mien/${region.slug}`)"
         class="text-3xl font-serif text-white hover:text-vn-gold"
       >
-        {{ $t("header.north") }}
-      </NuxtLink>
-      <NuxtLink
-        @click="showMenu = false"
-        :to="localePath('/mien/central')"
-        class="text-3xl font-serif text-white hover:text-vn-gold"
-      >
-        {{ $t("header.central") }}
-      </NuxtLink>
-      <NuxtLink
-        @click="showMenu = false"
-        :to="localePath('/mien/south')"
-        class="text-3xl font-serif text-white hover:text-vn-gold"
-      >
-        {{ $t("header.south") }}
+        {{ region.name }}
       </NuxtLink>
       <div class="border-t border-white/10 w-24 my-4"></div>
       <NuxtLink
@@ -228,9 +211,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import BaseIcon from "@/components/atoms/BaseIcon.vue";
+import { getRegions } from "~~/shared/constants/regions";
 
 const { locale, locales, setLocale } = useI18n();
 const localePath = useLocalePath();
+
+const regions = computed(() => getRegions(locale.value));
 
 const isScrolled = ref(false);
 const showMenu = ref(false);

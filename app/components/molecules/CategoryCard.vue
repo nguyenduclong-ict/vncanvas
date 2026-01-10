@@ -33,20 +33,13 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import BaseIcon from "@/components/atoms/BaseIcon.vue";
+import type { Category } from "~~/shared/constants/categories";
 
 const props = defineProps<{
-  category: {
-    key: string;
-    label: { vi: string; en: string };
-    icon: string;
-  };
+  category: Category;
 }>();
 
 const localePath = useLocalePath();
-const { locale } = useI18n();
 
-const categoryLabel = computed(() => {
-  const lang = locale.value as "vi" | "en";
-  return props.category.label[lang] || props.category.key;
-});
+const categoryLabel = computed(() => props.category.name);
 </script>

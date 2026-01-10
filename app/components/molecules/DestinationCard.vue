@@ -43,8 +43,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import BaseTag from "@/components/atoms/BaseTag.vue";
-import { CATEGORIES } from "~~/shared/constants/categories";
-import { REGIONS } from "~~/shared/constants/regions";
+import { getCategories } from "~~/shared/constants/categories";
+import { getRegions } from "~~/shared/constants/regions";
 import { useImageUrl } from "~/composables/useImageUrl";
 
 const { getImageUrl } = useImageUrl();
@@ -59,20 +59,19 @@ const router = useRouter();
 const { locale } = useI18n();
 
 const categoryName = computed(() => {
-  const lang = locale.value as "vi" | "en";
+  const categories = getCategories(locale.value);
   if (Array.isArray(props.destination.category)) {
     const firstKey = props.destination.category[0];
-    const cat = CATEGORIES.find((c) => c.key === firstKey);
-    return cat?.label[lang] || firstKey;
+    const cat = categories.find((c) => c.key === firstKey);
+    return cat?.name || firstKey;
   }
-  const cat = CATEGORIES.find((c) => c.key === props.destination.category);
-  return cat?.label[lang] || props.destination.category;
+  const cat = categories.find((c) => c.key === props.destination.category);
+  return cat?.name || props.destination.category;
 });
 
 const regionName = computed(() => {
   const lang = locale.value as "vi" | "en";
-  const r = REGIONS.find((r) => r.key === props.destination.region);
-  return r?.label[lang] || props.destination.region;
+  return getRegions(lang).find((r) => r.key === props.destination.region)?.name;
 });
 
 const navigate = () => {

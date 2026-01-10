@@ -9,14 +9,16 @@ import {
   Sparkles,
   ArrowUpCircle,
 } from "lucide-vue-next";
-import Pagination from "~/components/molecules/Pagination.vue";
-import { CATEGORIES } from "~~/shared/constants/categories";
-import { REGIONS } from "~~/shared/constants/regions";
+import Pagination from "~/components/admin/molecules/Pagination.vue";
+import { getCategories } from "~~/shared/constants/categories";
+import { getRegions } from "~~/shared/constants/regions";
 
 definePageMeta({
   layout: "admin",
   middleware: "admin-auth",
 });
+
+const categories = getCategories("vi");
 
 const { getImageUrl } = useImageUrl();
 
@@ -391,8 +393,8 @@ onUnmounted(() => {
         class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
       >
         <option value="">All Regions</option>
-        <option v-for="r in REGIONS" :key="r.key" :value="r.key">
-          {{ r.label.en }}
+        <option v-for="r in getRegions('vi')" :key="r.key" :value="r.key">
+          {{ r.name }}
         </option>
       </select>
 
@@ -402,8 +404,8 @@ onUnmounted(() => {
         class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
       >
         <option value="">All Categories</option>
-        <option v-for="c in CATEGORIES" :key="c.key" :value="c.key">
-          {{ c.label.en }}
+        <option v-for="c in categories" :key="c.key" :value="c.key">
+          {{ c.name }}
         </option>
       </select>
       <select

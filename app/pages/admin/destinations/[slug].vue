@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import TranslationForm from "~/components/organisms/TranslationForm.vue";
-import { CATEGORIES } from "~~/shared/constants/categories";
-import { MOOD_TAGS } from "~~/shared/constants/moods";
-import TagInput from "~/components/molecules/TagInput.vue";
+import TranslationForm from "~/components/admin/organisms/TranslationForm.vue";
+import { getCategories } from "~~/shared/constants/categories";
+import { getMoodTags } from "~~/shared/constants/moods";
+import TagInput from "~/components/admin/molecules/TagInput.vue";
 import { RotateCcw } from "lucide-vue-next";
 
 definePageMeta({
@@ -14,6 +14,8 @@ const route = useRoute();
 const router = useRouter();
 const slug = route.params.slug as string;
 const { getImageUrl } = useImageUrl();
+const categories = getCategories("vi");
+const moodTags = getMoodTags("vi");
 
 // View mode: 'draft' (default, editable) or 'published' (readonly)
 const viewMode = ref<"draft" | "published">("draft");
@@ -21,9 +23,7 @@ const hasDraft = ref(false);
 const isPublishing = ref(false);
 
 // Initial fetch
-const { data, refresh: refreshData } = await useAdminFetch(
-  `/api/admin/destinations/${slug}`
-);
+const { data } = await useAdminFetch(`/api/admin/destinations/${slug}`);
 
 // Custom refresh that respects viewMode
 const refresh = async () => {
@@ -517,13 +517,13 @@ const activeTab = ref("info"); // info, vi, en
 
       <TagInput
         label="Categories"
-        :options="CATEGORIES"
+        :options="categories.map((c) => ({ key: c.key, label: c.name }))"
         v-model="form.info.category"
       />
 
       <TagInput
         label="Mood Tags"
-        :options="MOOD_TAGS"
+        :options="moodTags.map((m) => ({ key: m.key, label: m.name }))"
         v-model="form.info.moodTags"
       />
 

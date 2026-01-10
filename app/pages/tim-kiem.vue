@@ -65,7 +65,7 @@
             </label>
             <div class="flex flex-wrap gap-2">
               <button
-                v-for="r in REGIONS"
+                v-for="r in regions"
                 :key="r.key"
                 @click="toggleFilter('region', r.key)"
                 :class="[
@@ -75,7 +75,7 @@
                     : 'border-white/20 text-gray-300 hover:border-white',
                 ]"
               >
-                {{ getRegionLabel(r.key) }}
+                {{ r.name }}
               </button>
             </div>
           </div>
@@ -103,7 +103,7 @@
             </label>
             <div class="flex flex-wrap gap-2">
               <button
-                v-for="mood in MOOD_TAGS"
+                v-for="mood in moodTags"
                 :key="mood.key"
                 @click="toggleMoodTag(mood.key)"
                 :class="[
@@ -113,7 +113,7 @@
                     : 'border-white/20 text-gray-300 hover:border-white',
                 ]"
               >
-                {{ getMoodLabel(mood.key) }}
+                {{ mood.name }}
               </button>
             </div>
           </div>
@@ -175,42 +175,13 @@
       <DestinationGrid v-else :destinations="searchResults" />
 
       <!-- Pagination -->
-      <div
+      <Pagination
         v-if="pagination.totalPages > 1"
-        class="flex justify-center items-center gap-4 mt-12"
-      >
-        <button
-          @click="goToPage(currentPage - 1)"
-          :disabled="currentPage === 1"
-          class="px-4 py-2 rounded-lg border border-white/20 text-gray-300 hover:border-white hover:text-white transition disabled:opacity-30 disabled:cursor-not-allowed"
-        >
-          <BaseIcon name="chevron-left" class="w-5 h-5" />
-        </button>
-
-        <div class="flex items-center gap-2">
-          <button
-            v-for="page in visiblePages"
-            :key="page"
-            @click="goToPage(page)"
-            :class="[
-              'w-10 h-10 rounded-lg border text-sm transition',
-              page === currentPage
-                ? 'bg-vn-gold text-black border-vn-gold'
-                : 'border-white/20 text-gray-300 hover:border-white',
-            ]"
-          >
-            {{ page }}
-          </button>
-        </div>
-
-        <button
-          @click="goToPage(currentPage + 1)"
-          :disabled="currentPage === pagination.totalPages"
-          class="px-4 py-2 rounded-lg border border-white/20 text-gray-300 hover:border-white hover:text-white transition disabled:opacity-30 disabled:cursor-not-allowed"
-        >
-          <BaseIcon name="chevron-right" class="w-5 h-5" />
-        </button>
-      </div>
+        :current-page="currentPage"
+        :total-pages="pagination.totalPages"
+        @update:page="goToPage"
+        class="mt-12"
+      />
 
       <!-- Results count -->
       <p v-if="pagination.total > 0" class="text-center text-gray-400 mt-6">
@@ -228,75 +199,11 @@ import BaseInput from "@/components/atoms/BaseInput.vue";
 import BaseIcon from "@/components/atoms/BaseIcon.vue";
 import SectionHeading from "@/components/atoms/SectionHeading.vue";
 import DestinationGrid from "@/components/organisms/DestinationGrid.vue";
-import { REGIONS } from "~~/shared/constants/regions";
-import { MOOD_TAGS } from "~~/shared/constants/moods";
-
-// Vietnam provinces list
-const PROVINCES = [
-  "Hà Nội",
-  "TP. Hồ Chí Minh",
-  "Đà Nẵng",
-  "Hải Phòng",
-  "Cần Thơ",
-  "An Giang",
-  "Bà Rịa - Vũng Tàu",
-  "Bắc Giang",
-  "Bắc Kạn",
-  "Bạc Liêu",
-  "Bắc Ninh",
-  "Bến Tre",
-  "Bình Định",
-  "Bình Dương",
-  "Bình Phước",
-  "Bình Thuận",
-  "Cà Mau",
-  "Cao Bằng",
-  "Đắk Lắk",
-  "Đắk Nông",
-  "Điện Biên",
-  "Đồng Nai",
-  "Đồng Tháp",
-  "Gia Lai",
-  "Hà Giang",
-  "Hà Nam",
-  "Hà Tĩnh",
-  "Hải Dương",
-  "Hậu Giang",
-  "Hòa Bình",
-  "Hưng Yên",
-  "Khánh Hòa",
-  "Kiên Giang",
-  "Kon Tum",
-  "Lai Châu",
-  "Lâm Đồng",
-  "Lạng Sơn",
-  "Lào Cai",
-  "Long An",
-  "Nam Định",
-  "Nghệ An",
-  "Ninh Bình",
-  "Ninh Thuận",
-  "Phú Thọ",
-  "Phú Yên",
-  "Quảng Bình",
-  "Quảng Nam",
-  "Quảng Ngãi",
-  "Quảng Ninh",
-  "Quảng Trị",
-  "Sóc Trăng",
-  "Sơn La",
-  "Tây Ninh",
-  "Thái Bình",
-  "Thái Nguyên",
-  "Thanh Hóa",
-  "Thừa Thiên Huế",
-  "Tiền Giang",
-  "Trà Vinh",
-  "Tuyên Quang",
-  "Vĩnh Long",
-  "Vĩnh Phúc",
-  "Yên Bái",
-];
+import Pagination from "@/components/molecules/Pagination.vue";
+import { PROVINCES } from "~~/shared/constants/provinces";
+import { getMoodTags } from "~~/shared/constants/moods";
+import { getCategories } from "~~/shared/constants/categories";
+import { getRegions } from "~~/shared/constants/regions";
 
 interface SearchResponse {
   data: Destination[];
@@ -311,12 +218,13 @@ interface SearchResponse {
 const route = useRoute();
 const router = useRouter();
 const { locale } = useI18n();
-const { data: categories } = await useCategories(`tk-categories`);
+const regions = getRegions(locale.value);
+const categories = computed(() => getCategories(locale.value));
+const moodTags = computed(() => getMoodTags(locale.value));
 
 const getCategoryLabel = (key: string) => {
-  const lang = locale.value as "vi" | "en";
-  const cat = categories.value?.find((c: any) => c.key === key);
-  return cat?.label[lang] || key;
+  const cat = categories.value.find((c: any) => c.key === key);
+  return cat?.name || key;
 };
 
 const searchQuery = ref("");
@@ -326,23 +234,17 @@ const searchResults = ref<Destination[]>([]);
 const pagination = ref({ page: 1, limit: 9, total: 0, totalPages: 0 });
 const isSearching = ref(false);
 
-// Filter state
+// Filter state - initialize from URL query params
 const showFilterPopup = ref(false);
-const selectedRegion = ref("");
-const selectedProvince = ref("");
-const selectedMoods = ref<string[]>([]);
-
-// Helper functions
-const getRegionLabel = (key: string) => {
-  const lang = locale.value as "vi" | "en";
-  const region = REGIONS.find((r) => r.key === key);
-  return region?.label[lang] || key;
-};
+const selectedRegion = ref((route.query.region as string) || "");
+const selectedProvince = ref((route.query.province as string) || "");
+const selectedMoods = ref<string[]>(
+  route.query.moodTags ? (route.query.moodTags as string).split(",") : []
+);
 
 const getMoodLabel = (key: string) => {
-  const lang = locale.value as "vi" | "en";
-  const mood = MOOD_TAGS.find((m) => m.key === key);
-  return mood?.label[lang] || key;
+  const mood = moodTags.value.find((m) => m.key === key);
+  return mood?.name || key;
 };
 
 const toggleFilter = (type: string, value: string) => {
@@ -387,27 +289,11 @@ const applyFilters = () => {
   currentPage.value = 1;
   doSearch();
 };
-
-// Visible pages for pagination
-const visiblePages = computed(() => {
-  const pages: number[] = [];
-  const total = pagination.value.totalPages;
-  const current = currentPage.value;
-
-  let start = Math.max(1, current - 2);
-  let end = Math.min(total, current + 2);
-
-  for (let i = start; i <= end; i++) {
-    pages.push(i);
-  }
-  return pages;
-});
-
-// Function to call search API
 const doSearch = async () => {
   isSearching.value = true;
   try {
     const params = new URLSearchParams();
+    params.set("lang", locale.value);
     if (searchQuery.value) params.set("q", searchQuery.value);
     if (selectedCat.value !== "all") params.set("category", selectedCat.value);
     if (selectedRegion.value) params.set("region", selectedRegion.value);

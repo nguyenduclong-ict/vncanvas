@@ -1,28 +1,36 @@
-export const CATEGORIES = [
-  {
-    key: "landscape",
-    label: { vi: "Phong cảnh", en: "Landscape" },
-    icon: "mountain",
-  },
-  { key: "culture", label: { vi: "Văn hóa", en: "Culture" }, icon: "landmark" },
-  { key: "food", label: { vi: "Ẩm thực", en: "Food" }, icon: "utensils" },
-  {
-    key: "history",
-    label: { vi: "Lịch sử", en: "History" },
-    icon: "scroll-text",
-  },
-  { key: "beaches", label: { vi: "Biển đảo", en: "Beaches" }, icon: "waves" },
-  { key: "mountain", label: { vi: "Núi rừng", en: "Mountain" }, icon: "trees" },
-  { key: "urban", label: { vi: "Đô thị", en: "Urban" }, icon: "building-2" },
-  {
-    key: "spiritual",
-    label: { vi: "Tâm linh", en: "Spiritual" },
-    icon: "sparkles",
-  },
-  { key: "eco", label: { vi: "Sinh thái", en: "Ecotourism" }, icon: "leaf" },
-  {
-    key: "resort",
-    label: { vi: "Nghỉ dưỡng", en: "Resort" },
-    icon: "palm-tree",
-  },
-];
+export type Category = {
+  name: string;
+  icon: string;
+  key: string;
+};
+
+export const CATEGORIES_DATA: Record<string, Category[]> = {
+  vi: [
+    { name: "Phong cảnh", icon: "mountain", key: "landscape" },
+    { name: "Văn hóa", icon: "landmark", key: "culture" },
+    { name: "Ẩm thực", icon: "utensils", key: "food" },
+    { name: "Lịch sử", icon: "scroll-text", key: "history" },
+    { name: "Biển đảo", icon: "waves", key: "beaches" },
+    { name: "Núi rừng", icon: "trees", key: "mountain" },
+    { name: "Đô thị", icon: "building-2", key: "urban" },
+    { name: "Tâm linh", icon: "sparkles", key: "spiritual" },
+    { name: "Sinh thái", icon: "leaf", key: "eco" },
+    { name: "Nghỉ dưỡng", icon: "tree-palm", key: "resort" },
+  ],
+  en: [
+    { name: "Landscape", icon: "mountain", key: "landscape" },
+    { name: "Culture", icon: "landmark", key: "culture" },
+    { name: "Food", icon: "utensils", key: "food" },
+    { name: "History", icon: "scroll-text", key: "history" },
+    { name: "Beaches", icon: "waves", key: "beaches" },
+    { name: "Mountain", icon: "trees", key: "mountain" },
+    { name: "Urban", icon: "building-2", key: "urban" },
+    { name: "Spiritual", icon: "sparkles", key: "spiritual" },
+    { name: "Ecotourism", icon: "leaf", key: "eco" },
+    { name: "Resort", icon: "tree-palm", key: "resort" },
+  ],
+};
+
+export const getCategories = (locale: string): Category[] => {
+  return (CATEGORIES_DATA as any)[locale];
+};

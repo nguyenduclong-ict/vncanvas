@@ -1,10 +1,10 @@
 <template>
   <div class="mb-20">
     <div class="flex items-center gap-4 mb-8">
-      <SectionHeading tag="h3">{{ $t(`regions.${regionKey}`) }}</SectionHeading>
+      <SectionHeading tag="h3">{{ region.name }}</SectionHeading>
       <div class="h-px bg-white/20 flex-1"></div>
       <NuxtLink
-        :to="localePath('/mien/' + regionKey)"
+        :to="localePath('/mien/' + region.slug)"
         class="text-vn-gold hover:underline text-sm font-normal"
       >
         {{ $t("common.viewMore") }}
@@ -24,23 +24,16 @@
 import { computed } from "vue";
 import SectionHeading from "@/components/atoms/SectionHeading.vue";
 import DestinationCard from "@/components/molecules/DestinationCard.vue";
+import type { Region } from "~~/shared/constants/regions";
 
 const props = defineProps<{
-  regionKey: "north" | "central" | "south";
+  region: Region;
 }>();
 
 const localePath = useLocalePath();
-const { data: regionInfo } = useRegions(`rgs-${props.regionKey}-regionInfo`);
-const { data: searchResult } = useDestinations(
-  `rgs-${props.regionKey}-destinations`,
-  {
-    region: computed(() => props.regionKey),
-    limit: 3,
-  }
-);
-
-const regionName = computed(() => {
-  return (regionInfo.value as any)?.[props.regionKey]?.name || "Miền";
+const { data: searchResult } = await useDestinations({
+  region: props.region.key,
+  limit: 3,
 });
 
 const destinations = computed(() => {

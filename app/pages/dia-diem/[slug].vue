@@ -82,25 +82,25 @@ import BaseIcon from "@/components/atoms/BaseIcon.vue";
 import SectionHeading from "@/components/atoms/SectionHeading.vue";
 import DetailSidebar from "@/components/organisms/DetailSidebar.vue";
 import StorySection from "@/components/organisms/StorySection.vue";
-import { CATEGORIES } from "~~/shared/constants/categories";
-import { REGIONS } from "~~/shared/constants/regions";
+import { getCategories } from "~~/shared/constants/categories";
 import { useImageUrl } from "~/composables/useImageUrl";
+import { getRegions } from "~~/shared/constants/regions";
 
 const route = useRoute();
 const { locale } = useI18n();
 const { getImageUrl } = useImageUrl();
 const slug = computed(() => route.params.slug as string);
 
-const { data: dest } = await useDestination(`dd-${slug.value}`, slug);
+const { data: dest } = await useDestination(slug);
 
 // Map all category keys to translated labels
 const categoryNames = computed(() => {
   if (!dest.value?.category) return "";
-  const lang = locale.value as "vi" | "en";
+  const categories = getCategories(locale.value);
   return dest.value.category
     .map((key: string) => {
-      const cat = CATEGORIES.find((c) => c.key === key);
-      return cat?.label[lang] || key;
+      const cat = categories.find((c) => c.key === key);
+      return cat?.name || key;
     })
     .join(", ");
 });
@@ -109,8 +109,8 @@ const categoryNames = computed(() => {
 const regionName = computed(() => {
   if (!dest.value?.region) return "";
   const lang = locale.value as "vi" | "en";
-  const region = REGIONS.find((r) => r.key === dest.value?.region);
-  return region?.label[lang] || dest.value.region;
+  const region = getRegions(lang).find((r) => r.key === dest.value?.region);
+  return region?.name || dest.value.region;
 });
 
 // Calculate read time based on word count (200 words/min average)

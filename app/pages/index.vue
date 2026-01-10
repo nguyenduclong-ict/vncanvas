@@ -13,9 +13,11 @@
         </SectionHeading>
       </div>
 
-      <RegionSection regionKey="north" />
-      <RegionSection regionKey="central" />
-      <RegionSection regionKey="south" />
+      <RegionSection
+        v-for="region in regions"
+        :key="region.key"
+        :region="region"
+      />
     </section>
 
     <!-- Featured Categories -->
@@ -41,6 +43,30 @@
         />
       </div>
     </section>
+
+    <!-- Mood Tags Section -->
+    <section
+      class="py-12 px-4 container mx-auto pb-32 border-t border-white/10"
+    >
+      <div class="flex justify-between items-end mb-8">
+        <SectionHeading tag="h2" class="!mb-0">
+          {{ $t("home.moodTagsTitle") }}
+        </SectionHeading>
+        <NuxtLink
+          :to="localePath('/tim-kiem')"
+          class="text-vn-gold text-sm hover:underline"
+        >
+          {{ $t("common.viewAll") }}
+        </NuxtLink>
+      </div>
+      <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
+        <MoodTagCard
+          v-for="mood in moodTags?.slice(0, 6)"
+          :key="mood.key"
+          :mood-tag="mood"
+        />
+      </div>
+    </section>
   </div>
 </template>
 
@@ -48,11 +74,17 @@
 import HomeHero from "@/components/organisms/HomeHero.vue";
 import RegionSection from "@/components/organisms/RegionSection.vue";
 import CategoryCard from "@/components/molecules/CategoryCard.vue";
+import MoodTagCard from "@/components/molecules/MoodTagCard.vue";
 import SectionHeading from "@/components/atoms/SectionHeading.vue";
+import { getCategories } from "~~/shared/constants/categories";
+import { getRegions } from "~~/shared/constants/regions";
+import { getMoodTags } from "~~/shared/constants/moods";
 
-const { data: categories } = await useCategories(`index-categories`);
-const { t } = useI18n();
+const { t, locale } = useI18n();
 const localePath = useLocalePath();
+const categories = getCategories(locale.value);
+const regions = getRegions(locale.value);
+const moodTags = getMoodTags(locale.value);
 
 useSeoMeta({
   title: t("seo.home.title"),

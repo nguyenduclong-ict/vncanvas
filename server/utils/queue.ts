@@ -28,6 +28,8 @@ export async function addJobToQueue(
   // Prefer env var from Cloudflare context, then runtime config
   const serverUrl = getServerUrl(event);
 
+  console.log("serverUrl", serverUrl);
+
   if (serverUrl) {
     const triggerUrl = `${serverUrl}/api/admin/queue/trigger`;
 

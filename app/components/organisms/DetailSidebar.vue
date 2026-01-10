@@ -35,13 +35,19 @@
         {{ $t("detail.moodTitle") }}
       </h3>
       <div class="flex flex-wrap gap-2">
-        <span
-          v-for="tag in translatedMoodTags"
-          :key="tag"
-          class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-sm text-gray-300"
+        <NuxtLink
+          v-for="(tag, index) in translatedMoodTags"
+          :key="moodTags[index]"
+          :to="
+            localePath({
+              path: '/tim-kiem',
+              query: { moodTags: moodTags[index] },
+            })
+          "
+          class="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-sm text-gray-300 hover:bg-vn-gold/10 hover:border-vn-gold hover:text-vn-gold transition-colors cursor-pointer"
         >
           {{ tag }}
-        </span>
+        </NuxtLink>
       </div>
     </div>
   </div>
@@ -50,7 +56,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import InfoItem from "@/components/molecules/InfoItem.vue";
-import { MOOD_TAGS } from "~~/shared/constants/moods";
+import { getMoodTags } from "~~/shared/constants/moods";
 
 const props = defineProps<{
   details: {
@@ -62,13 +68,14 @@ const props = defineProps<{
 }>();
 
 const { locale } = useI18n();
+const localePath = useLocalePath();
 
 const translatedMoodTags = computed(() => {
   if (!props.moodTags) return [];
-  const lang = locale.value as "vi" | "en";
+  const allMoodTags = getMoodTags(locale.value);
   return props.moodTags.map((key) => {
-    const mood = MOOD_TAGS.find((m) => m.key === key);
-    return mood?.label[lang] || key;
+    const mood = allMoodTags.find((m) => m.key === key);
+    return mood?.name || key;
   });
 });
 </script>

@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   const cookies = parseCookies(event);
 
-  if (event.path === "/admin/queue/trigger") {
+  if (event.path === "/api/admin/queue/trigger") {
     const body = await readBody(event);
     const { secret } = body;
     if (secret) {
@@ -36,6 +36,7 @@ export default defineEventHandler(async (event) => {
     } else {
       throw createError({ statusCode: 401, message: "Unauthorized" });
     }
+    return;
   }
 
   if (event.path.startsWith("/api/admin")) {

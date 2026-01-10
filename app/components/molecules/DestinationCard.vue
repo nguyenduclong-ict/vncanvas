@@ -23,13 +23,13 @@
     </div>
 
     <div class="p-4">
-      <div class="flex items-center justify-between mb-2">
+      <div class="flex justify-between mb-2 gap-1">
         <h4
-          class="text-xl font-serif font-bold text-white group-hover:text-vn-gold transition"
+          class="text-xl font-serif font-bold text-white group-hover:text-vn-gold transition md:line-clamp-2"
         >
           {{ destination.title }}
         </h4>
-        <span class="text-xs text-gray-500 uppercase tracking-wider">
+        <span class="text-xs text-gray-500 uppercase tracking-wider mt-1">
           {{ regionName }}
         </span>
       </div>

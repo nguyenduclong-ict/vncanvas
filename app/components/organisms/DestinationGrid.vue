@@ -29,7 +29,9 @@
             • {{ getRegionLabel(dest.region) }}
           </span>
         </div>
-        <h3 class="text-xl font-bold font-serif mb-2 text-white">
+        <h3
+          class="text-xl font-bold font-serif mb-2 text-white md:line-clamp-2"
+        >
           {{ dest.title }}
         </h3>
         <p class="text-sm text-gray-400 line-clamp-2">{{ dest.shortDesc }}</p>
@@ -43,8 +45,6 @@
 
 <script setup lang="ts">
 import { useImageUrl } from "~/composables/useImageUrl";
-import { getCategories } from "~~/shared/constants/categories";
-import { getRegions } from "~~/shared/constants/regions";
 
 const props = defineProps<{
   destinations: any[];
@@ -52,21 +52,4 @@ const props = defineProps<{
 
 const localePath = useLocalePath();
 const { getImageUrl } = useImageUrl();
-const { locale } = useI18n();
-
-const getCategoryLabel = (category: string | string[]) => {
-  const categories = getCategories(locale.value);
-  const keys = Array.isArray(category) ? category : [category];
-  return keys
-    .map((key) => {
-      const cat = categories.find((c) => c.key === key);
-      return cat?.name || key;
-    })
-    .join(", ");
-};
-
-const getRegionLabel = (region: string) => {
-  const lang = locale.value as "vi" | "en";
-  return getRegions(lang).find((r) => r.key === region)?.name;
-};
 </script>

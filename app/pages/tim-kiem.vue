@@ -239,7 +239,9 @@ const showFilterPopup = ref(false);
 const selectedRegion = ref((route.query.region as string) || "");
 const selectedProvince = ref((route.query.province as string) || "");
 const selectedMoods = ref<string[]>(
-  route.query.moodTags ? (route.query.moodTags as string).split(",") : []
+  route.query["mood-tags"]
+    ? (route.query["mood-tags"] as string).split(",")
+    : []
 );
 
 const getMoodLabel = (key: string) => {
@@ -299,7 +301,7 @@ const doSearch = async () => {
     if (selectedRegion.value) params.set("region", selectedRegion.value);
     if (selectedProvince.value) params.set("province", selectedProvince.value);
     if (selectedMoods.value.length > 0)
-      params.set("moodTags", selectedMoods.value.join(","));
+      params.set("mood-tags", selectedMoods.value.join(","));
     params.set("page", currentPage.value.toString());
 
     const response = await $fetch<SearchResponse>(

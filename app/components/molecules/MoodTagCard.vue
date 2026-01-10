@@ -1,6 +1,6 @@
 <template>
   <NuxtLink
-    :to="localePath({ path: '/tim-kiem', query: { moodTags: moodTag.key } })"
+    :to="localePath({ path: '/tim-kiem', query: { 'mood-tags': moodTag.key } })"
     class="relative group cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-white/5 hover:border-vn-gold/50 transition-all duration-300 hover:-translate-y-1 h-full min-h-[120px] block"
   >
     <!-- Hover Gradient Background -->

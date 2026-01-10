@@ -2,6 +2,7 @@
 // This runs at build time and adds routes dynamically
 
 import { defineNuxtModule } from "@nuxt/kit";
+import { getRegions } from "../shared/constants/regions";
 
 export default defineNuxtModule<{ enabled?: boolean }>({
   meta: {
@@ -32,13 +33,6 @@ export default defineNuxtModule<{ enabled?: boolean }>({
       "/chinh-sach",
     ];
 
-    // Region routes
-    const regions = await fetch(
-      `${process.env.NUXT_PUBLIC_API_URL}/api/regions`
-    )
-      .then((res) => res.json())
-      .then((res) => Object.keys(res));
-
     // Get published destinations from database via Wrangler CLI
 
     const destinationSlugs = await fetch(
@@ -64,9 +58,11 @@ export default defineNuxtModule<{ enabled?: boolean }>({
         routes.push(`${localePrefix}${route}`);
       }
 
+      const regions = getRegions(locale);
+
       // Add region routes
       for (const region of regions) {
-        routes.push(`${localePrefix}/mien/${region}`);
+        routes.push(`${localePrefix}/mien/${region.slug}`);
       }
 
       // Add destination routes

@@ -62,27 +62,27 @@ const visiblePages = computed(() => {
       pages.push(i);
     }
   } else {
-    // Always show first page
-    pages.push(1);
+    // Always show first 2 pages
+    pages.push(1, 2);
 
-    if (current > 3) {
+    if (current > 4) {
       pages.push("...");
     }
 
-    // Show pages around current
-    const start = Math.max(2, current - 1);
-    const end = Math.min(total - 1, current + 1);
+    // Show pages around current (excluding first 2 and last 2)
+    const start = Math.max(3, current - 1);
+    const end = Math.min(total - 2, current + 1);
 
     for (let i = start; i <= end; i++) {
       pages.push(i);
     }
 
-    if (current < total - 2) {
+    if (current < total - 3) {
       pages.push("...");
     }
 
-    // Always show last page
-    pages.push(total);
+    // Always show last 2 pages
+    pages.push(total - 1, total);
   }
 
   return pages;

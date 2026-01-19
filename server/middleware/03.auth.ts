@@ -1,16 +1,22 @@
 export default defineEventHandler(async (event) => {
   const cookies = parseCookies(event);
 
+  console.log("event.path", event.path);
+
   if (event.path === "/api/admin/queue/trigger") {
     const body = await readBody(event);
     const { secret } = body;
+    console.log("body", body);
+    console.log("secret", secret);
     if (secret) {
       const config = useRuntimeConfig(event);
       const cloudflareEnv = event.context.cloudflare?.env;
       const envSecret =
-        cloudflareEnv?.QUEUE_SECRET ||
+        cloudflareEnv?.NUXT_QUEUE_SECRET ||
         config.queueSecret ||
-        process.env.QUEUE_SECRET;
+        process.env.NUXT_QUEUE_SECRET;
+
+      console.log("envSecret", envSecret);
 
       // 1. Auth Check
       if (!secret || secret !== envSecret) {

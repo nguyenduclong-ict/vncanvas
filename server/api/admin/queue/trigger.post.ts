@@ -11,9 +11,11 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event);
   const cloudflareEnv = event.context.cloudflare?.env;
   const envSecret =
-    cloudflareEnv?.QUEUE_SECRET ||
+    cloudflareEnv?.NUXT_QUEUE_SECRET ||
     config.queueSecret ||
-    process.env.QUEUE_SECRET;
+    process.env.NUXT_QUEUE_SECRET;
+
+  console.log("trigger queue", queueName);
 
   if (!queueName) {
     throw createError({
@@ -103,6 +105,8 @@ export default defineEventHandler(async (event) => {
             `[Queue: ${queueName}] Job ID: ${pickedJob.id} FAILED.`,
             err
           );
+          // Delete job on error to prevent it from being stuck in 'running'
+          await db.delete(jobs).where(eq(jobs.id, pickedJob.id));
         }
       }
     } catch (err) {
@@ -166,6 +170,8 @@ export default defineEventHandler(async (event) => {
   } else {
     processLogic();
   }
+
+  console.log("trigger queue success", queueName);
 
   return { status: "ok" };
 });

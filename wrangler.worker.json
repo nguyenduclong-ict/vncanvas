@@ -12,6 +12,12 @@
       "migrations_dir": "db/migrations"
     }
   ],
+  "services": [
+    {
+      "binding": "WORKER",
+      "service": "vncanvas"
+    }
+  ],
   "vars": {
     "NUXT_QUEUE_SECRET": "",
     "NUXT_SERVER_URL": ""

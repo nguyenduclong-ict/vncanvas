@@ -108,11 +108,9 @@ if (process.env.BUILD_TARGET === "static") {
 if (process.env.BUILD_TARGET === "api") {
   config = defineNuxtConfig({
     runtimeConfig: {
-      private: {
-        queueSecret: "",
-        serverUrl: "",
-        onlyApi: true,
-      },
+      queueSecret: "",
+      serverUrl: "",
+      onlyApi: true,
     },
     pages: false,
     modules: ["@nuxtjs/i18n"],

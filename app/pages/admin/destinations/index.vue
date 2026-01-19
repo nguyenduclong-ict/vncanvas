@@ -8,8 +8,11 @@ import {
   Search,
   Sparkles,
   ArrowUpCircle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-vue-next";
 import Pagination from "~/components/admin/molecules/Pagination.vue";
+import QueueJobList from "~/components/admin/organisms/QueueJobList.vue";
 import { getCategories } from "~~/shared/constants/categories";
 import { getRegions } from "~~/shared/constants/regions";
 
@@ -30,6 +33,7 @@ const filterCategory = ref("");
 const filterStatus = ref("");
 const filterAiStatus = ref("");
 const filterMissingLang = ref("");
+const filterHasDraft = ref("");
 
 // Debounced search
 
@@ -46,6 +50,7 @@ const { data: response, refresh } = await useAdminFetch(
       status: filterStatus.value || undefined,
       aiStatus: filterAiStatus.value || undefined,
       missingLang: filterMissingLang.value || undefined,
+      hasDraft: filterHasDraft.value || undefined,
       q: debouncedSearch.value || undefined,
     })),
   }
@@ -312,25 +317,53 @@ async function stopQueue() {
   )
     return;
   try {
-    const config = useRuntimeConfig();
     await adminFetch("/api/admin/queue/clear", {
       method: "POST",
       body: {
         queueName: "ai-queue",
-        secret: config.public?.queueSecret || "", // Secret handling might be tricky on client.
-        // Admin API usually handles auth via session/middleware.
-        // `clear.post.ts` checks `body.secret`.
-        // If this is an admin-only API protected by middleware, maybe we don't need body secret if we strip that check?
-        // BUT clear.post.ts currently enforces: if (!secret || secret !== envSecret) throw 401.
-        // This means frontend CANNOT call it unless it knows the secret.
-        // This is a flaw in my design if admin UI needs to call it.
-        // I should update `clear.post.ts` to allow session-based auth (admin) OR require secret.
       },
     });
     await fetchQueueStatus();
+    // The QueueJobList component will handle its own refresh of jobs
   } catch (error) {
     console.error("Failed to stop queue:", error);
     alert("Failed to stop queue. Check console.");
+  }
+}
+
+// Queue Jobs Helper
+const queueJobs = ref<any[]>([]);
+const updateQueueJobs = (jobs: any[]) => {
+  queueJobs.value = jobs;
+};
+
+const getJobIdForDest = (slug: string) => {
+  // Find job where data.slug matches
+  const job = queueJobs.value.find((j) => j.data?.slug === slug);
+  return job?.id;
+};
+
+async function deleteJob(jobId: number) {
+  if (!confirm("Are you sure you want to cancel this job?")) return;
+  try {
+    await adminFetch(`/api/admin/queue/jobs/${jobId}`, { method: "DELETE" });
+    // QueueJobList will refresh via its own polling, but we should also trigger it
+    // Or simpler: let the component handle its own refresh, we just need to refresh our queueJobs list
+    // Actually, if we use a ref on QueueJobList, we can call fetchJobs
+    // But for the table button logic, we are calling this function separately.
+    // We should probably share the fetch logic or rely on the component's emit.
+    // Let's rely on the polling in QueueJobList to update the list eventually,
+    // but for immediate feedback we might want to manually refresh.
+    // Since we can't easily access the component instance from inside the table row click if we don't have a ref...
+    // Let's just manually fetch to update our local state
+    const response = await adminFetch<any>(
+      "/api/admin/queue/jobs?queue=ai-queue"
+    );
+    queueJobs.value = response.data || [];
+    await fetchQueueStatus(); // Refresh summary
+  } catch (error) {
+    console.error("Failed to cancel job:", error);
+    alert("Failed to cancel job.");
   }
 }
 
@@ -338,7 +371,7 @@ onMounted(() => {
   // Initial fetch
   fetchQueueStatus();
 
-  // Start polling every 3 seconds
+  // Start polling every 3 seconds for summary status
   pollInterval = setInterval(fetchQueueStatus, 3000);
 });
 
@@ -414,7 +447,17 @@ onUnmounted(() => {
       >
         <option value="">All Status</option>
         <option value="published">Published</option>
-        <option value="draft">Draft</option>
+        <option value="draft">Unpublished</option>
+      </select>
+
+      <!-- Draft Changes Filter -->
+      <select
+        v-model="filterHasDraft"
+        class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+      >
+        <option value="">All Drafting Status</option>
+        <option value="true">Has Draft Changes</option>
+        <option value="false">No Draft Changes</option>
       </select>
 
       <!-- AI Status Filter -->
@@ -547,160 +590,189 @@ onUnmounted(() => {
           Stop Queue
         </button>
       </div>
+      <!-- Jobs List Component -->
+      <div
+        v-if="
+          genProgress?.summary?.queued > 0 ||
+          genProgress?.summary?.processing > 0
+        "
+        class="mt-4"
+      >
+        <QueueJobList
+          queue-name="ai-queue"
+          :initial-show="false"
+          :can-toggle="true"
+          @jobs-updated="updateQueueJobs"
+        />
+      </div>
     </div>
 
+    <!-- Table Container with Scroll -->
     <div class="bg-white rounded shadow overflow-hidden relative">
-      <div
-        v-if="isLoading"
-        class="absolute inset-0 bg-white/50 z-10 flex items-center justify-center"
-      >
-        <Loader2 class="w-8 h-8 text-emerald-600 animate-spin" />
-      </div>
+      <div class="overflow-x-auto">
+        <div
+          v-if="isLoading"
+          class="absolute inset-0 bg-white/50 z-10 flex items-center justify-center"
+        >
+          <Loader2 class="w-8 h-8 text-emerald-600 animate-spin" />
+        </div>
 
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th scope="col" class="p-4 w-4">
-              <div class="flex items-center">
-                <input
-                  type="checkbox"
-                  class="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 focus:ring-2"
-                  :checked="allSelected"
-                  :indeterminate="indeterminate"
-                  @change="toggleAll"
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="p-4 w-4">
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    class="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 focus:ring-2"
+                    :checked="allSelected"
+                    :indeterminate="indeterminate"
+                    @change="toggleAll"
+                  />
+                </div>
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Image
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Slug
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Name
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Category
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24"
+              >
+                AI Gen
+              </th>
+              <th
+                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              >
+                Status
+              </th>
+              <th
+                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider sticky right-0 bg-gray-50 z-10"
+              >
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <tr
+              v-for="dest in destinations"
+              :key="dest.id"
+              :class="{ 'bg-emerald-50/50': selectedDestinations.has(dest.id) }"
+            >
+              <td class="w-4 p-4">
+                <div class="flex items-center">
+                  <input
+                    type="checkbox"
+                    class="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 focus:ring-2"
+                    :checked="selectedDestinations.has(dest.id)"
+                    @change="toggleSelection(dest.id)"
+                  />
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <NuxtImg
+                  :src="getImageUrl(dest.thumbnail)"
+                  format="webp"
+                  class="h-10 w-16 object-cover rounded"
+                  width="64"
+                  height="40"
+                  loading="lazy"
                 />
-              </div>
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Image
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Slug
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Name
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Category
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24"
-            >
-              AI Gen
-            </th>
-            <th
-              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Status
-            </th>
-            <th
-              class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-            >
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <tr
-            v-for="dest in destinations"
-            :key="dest.id"
-            :class="{ 'bg-emerald-50/50': selectedDestinations.has(dest.id) }"
-          >
-            <td class="w-4 p-4">
-              <div class="flex items-center">
-                <input
-                  type="checkbox"
-                  class="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 focus:ring-2"
-                  :checked="selectedDestinations.has(dest.id)"
-                  @change="toggleSelection(dest.id)"
-                />
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <NuxtImg
-                :src="getImageUrl(dest.thumbnail)"
-                format="webp"
-                class="h-10 w-16 object-cover rounded"
-                width="64"
-                height="40"
-                loading="lazy"
-              />
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {{ dest.slug }}
-            </td>
-            <td
-              class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium"
-            >
-              {{ dest.name || "—" }}
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-500">
-              <div class="flex flex-wrap gap-1">
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                {{ dest.slug }}
+              </td>
+              <td
+                class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium"
+              >
+                {{ dest.name || "—" }}
+              </td>
+              <td class="px-6 py-4 text-sm text-gray-500">
+                <div class="flex flex-wrap gap-1">
+                  <span
+                    v-for="cat in dest.category"
+                    :key="cat"
+                    class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs"
+                  >
+                    {{ cat }}
+                  </span>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
                 <span
-                  v-for="cat in dest.category"
-                  :key="cat"
-                  class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded text-xs"
+                  v-if="getAiGenStatus(dest.slug, dest.aiGenStatus)"
+                  :class="getAiGenStatusClass(dest.slug, dest.aiGenStatus)"
+                  class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
                 >
-                  {{ cat }}
+                  <Loader2
+                    v-if="
+                      getAiGenStatus(dest.slug, dest.aiGenStatus) ===
+                      'processing'
+                    "
+                    class="w-3 h-3 mr-1 animate-spin"
+                  />
+                  {{ getAiGenStatus(dest.slug, dest.aiGenStatus) }}
                 </span>
-              </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span
-                v-if="getAiGenStatus(dest.slug, dest.aiGenStatus)"
-                :class="getAiGenStatusClass(dest.slug, dest.aiGenStatus)"
-                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
-              >
-                <Loader2
-                  v-if="
-                    getAiGenStatus(dest.slug, dest.aiGenStatus) === 'processing'
+                <span v-else class="text-gray-400 text-xs">—</span>
+
+                <!-- Cancel Job Button -->
+                <button
+                  v-if="getJobIdForDest(dest.slug)"
+                  @click="deleteJob(getJobIdForDest(dest.slug)!)"
+                  class="ml-2 p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition"
+                  title="Cancel Job"
+                >
+                  <XCircle class="w-4 h-4" />
+                </button>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span
+                  :class="
+                    dest.isPublished
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-gray-100 text-gray-800'
                   "
-                  class="w-3 h-3 mr-1 animate-spin"
-                />
-                {{ getAiGenStatus(dest.slug, dest.aiGenStatus) }}
-              </span>
-              <span v-else class="text-gray-400 text-xs">—</span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <span
-                :class="
-                  dest.isPublished
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-gray-100 text-gray-800'
-                "
-                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                  class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                >
+                  {{ dest.isPublished ? "Published" : "Draft" }}
+                </span>
+                <span
+                  v-if="dest.hasDraft"
+                  class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800"
+                  title="Has unsaved changes"
+                >
+                  Drafting
+                </span>
+              </td>
+              <td
+                class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium sticky right-0 bg-white z-10 border-l border-gray-100"
               >
-                {{ dest.isPublished ? "Published" : "Draft" }}
-              </span>
-              <span
-                v-if="dest.hasDraft"
-                class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-amber-100 text-amber-800"
-                title="Has unsaved changes"
-              >
-                Drafting
-              </span>
-            </td>
-            <td
-              class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-            >
-              <NuxtLink
-                :to="`/admin/destinations/${dest.slug}`"
-                class="text-emerald-600 hover:text-emerald-900"
-              >
-                Edit
-              </NuxtLink>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                <NuxtLink
+                  :to="`/admin/destinations/${dest.slug}`"
+                  class="text-emerald-600 hover:text-emerald-900"
+                >
+                  Edit
+                </NuxtLink>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <Pagination

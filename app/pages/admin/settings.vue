@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Pagination from "~/components/admin/molecules/Pagination.vue";
+import QueueJobList from "~/components/admin/organisms/QueueJobList.vue";
 
 definePageMeta({
   layout: "admin",
@@ -77,11 +78,17 @@ const queues = ref<any[]>([]);
 const isLoadingQueues = ref(false);
 const isProcessingAction = ref(false);
 
+const selectedQueue = computed(() => {
+  return queues.value.find((q) => q.name === activeTab.value);
+});
+
 const loadQueues = async () => {
   isLoadingQueues.value = true;
   try {
     const result = await adminFetch<any>("/api/admin/queue");
     queues.value = result.queues || [];
+    // If no active tab or 'api-keys' and we just loaded queues, we might want to stay on 'api-keys'
+    // But if activeTab was a queue name that disappeared? Handle gracefully.
   } catch (e) {
     console.error("Failed to load queues:", e);
   } finally {
@@ -141,15 +148,22 @@ const clearQueue = async (queueName: string) => {
   }
 };
 
-onMounted(loadQueues);
+onMounted(() => {
+  loadQueues();
+  // Poll queues status every 3s
+  const interval = setInterval(loadQueues, 3000);
+  onUnmounted(() => clearInterval(interval));
+});
 
-const activeTab = ref<"api-keys" | "queues">("api-keys");
+const activeTab = ref<string>("api-keys");
 </script>
 
 <template>
   <div class="max-w-4xl mx-auto">
     <!-- Tabs -->
-    <div class="border-b border-gray-200 mb-6">
+    <div
+      class="border-b border-gray-200 mb-6 overflow-x-auto overflow-y-hidden"
+    >
       <nav class="-mb-px flex space-x-8">
         <button
           @click="activeTab = 'api-keys'"
@@ -162,16 +176,40 @@ const activeTab = ref<"api-keys" | "queues">("api-keys");
         >
           API Keys
         </button>
+
+        <!-- Queue Tabs -->
         <button
-          @click="activeTab = 'queues'"
+          v-for="q in queues"
+          :key="q.name"
+          @click="activeTab = q.name"
           :class="[
-            activeTab === 'queues'
+            activeTab === q.name
               ? 'border-emerald-500 text-emerald-600'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-            'whitespace-nowrap py-4 px-1 border-b-2 font-medium',
+            'whitespace-nowrap py-4 px-1 border-b-2 font-medium flex items-center gap-2',
           ]"
         >
-          Queue Management
+          {{ q.name }}
+          <span
+            v-if="q.running > 0 || q.pending > 0"
+            class="text-xs bg-gray-100 px-1.5 rounded-full"
+            :class="{
+              'bg-emerald-100 text-emerald-800': activeTab === q.name,
+            }"
+          >
+            {{ q.running + q.pending }}
+          </span>
+        </button>
+
+        <button
+          @click="loadQueues"
+          class="ml-auto p-2 text-gray-400 hover:text-gray-600 self-center"
+          title="Refresh Queues"
+        >
+          <RefreshCcw
+            class="w-4 h-4"
+            :class="{ 'animate-spin': isLoadingQueues }"
+          />
         </button>
       </nav>
     </div>
@@ -333,113 +371,86 @@ const activeTab = ref<"api-keys" | "queues">("api-keys");
       />
     </div>
 
-    <!-- Queue Management Tab -->
-    <div v-show="activeTab === 'queues'">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold">Queue Management</h2>
-        <button
-          @click="loadQueues"
-          class="p-2 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100"
-          title="Refresh Queues"
-        >
-          <div :class="{ 'animate-spin': isLoadingQueues }">↻</div>
-        </button>
+    <!-- Dynamic Queue Tabs -->
+    <div v-if="activeTab !== 'api-keys' && selectedQueue" class="space-y-6">
+      <!-- Queue Stats & Actions Card -->
+      <div class="bg-white rounded-lg shadow p-6 border border-gray-100">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="text-lg font-bold text-gray-900">
+              {{ selectedQueue.name }} Management
+            </h3>
+            <p class="text-sm text-gray-500">
+              {{ selectedQueue.description || "No description" }}
+            </p>
+          </div>
+          <div class="flex gap-2">
+            <span
+              class="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+            >
+              Running: {{ selectedQueue.running }}
+            </span>
+            <span
+              class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
+            >
+              Pending: {{ selectedQueue.pending }}
+            </span>
+          </div>
+        </div>
+
+        <div class="flex items-end gap-4 mt-4 pt-4 border-t border-gray-100">
+          <!-- Concurrency Settings -->
+          <div class="flex-1">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+              Concurrency
+            </label>
+            <div class="flex items-center gap-2">
+              <input
+                type="number"
+                v-model.number="selectedQueue.concurrency"
+                class="w-20 rounded border-gray-300 text-sm p-2 border focus:ring-emerald-500 focus:border-emerald-500"
+                min="1"
+                max="50"
+              />
+              <button
+                @click="saveQueueSettings(selectedQueue)"
+                class="bg-gray-100 text-gray-700 px-3 py-2 rounded hover:bg-gray-200 text-sm font-medium transition-colors"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex gap-2">
+            <button
+              @click="triggerQueue(selectedQueue.name)"
+              class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors text-sm font-medium"
+              :disabled="isProcessingAction"
+            >
+              <div v-if="isProcessingAction" class="animate-spin">↻</div>
+              Start Queue
+            </button>
+            <button
+              @click="clearQueue(selectedQueue.name)"
+              class="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded hover:bg-red-100 transition-colors text-sm font-medium"
+              :disabled="isProcessingAction"
+            >
+              Clear Jobs
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div class="bg-white rounded shadow overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Queue Name
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Status
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Concurrency
-              </th>
-              <th
-                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr v-for="q in queues" :key="q.name">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900">
-                  {{ q.name }}
-                </div>
-                <div class="text-sm text-gray-500">{{ q.description }}</div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex flex-col gap-1">
-                  <span
-                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800"
-                  >
-                    Running: {{ q.running }}
-                  </span>
-                  <span
-                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800"
-                  >
-                    Pending: {{ q.pending }}
-                  </span>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center gap-2">
-                  <input
-                    type="number"
-                    v-model.number="q.concurrency"
-                    class="w-16 rounded border-gray-300 text-sm p-1 border"
-                    min="1"
-                    max="50"
-                  />
-                  <button
-                    @click="saveQueueSettings(q)"
-                    class="text-emerald-600 hover:text-emerald-900 text-sm font-medium"
-                  >
-                    Save
-                  </button>
-                </div>
-              </td>
-              <td
-                class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium"
-              >
-                <div class="flex justify-end gap-2">
-                  <button
-                    @click="triggerQueue(q.name)"
-                    class="text-blue-600 hover:text-blue-900"
-                    :disabled="isProcessingAction"
-                  >
-                    Start
-                  </button>
-                  <span class="text-gray-300">|</span>
-                  <button
-                    @click="clearQueue(q.name)"
-                    class="text-red-600 hover:text-red-900"
-                    :disabled="isProcessingAction"
-                  >
-                    Clear
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr v-if="queues.length === 0">
-              <td colspan="4" class="px-6 py-4 text-center text-gray-500">
-                No active queues found.
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Job List Component -->
+      <div>
+        <h3 class="text-lg font-bold mb-3 text-gray-800">Jobs</h3>
+        <QueueJobList
+          :key="selectedQueue.name"
+          :queue-name="selectedQueue.name"
+          :initial-show="true"
+          :can-toggle="false"
+        />
       </div>
     </div>
   </div>

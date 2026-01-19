@@ -6,7 +6,9 @@ export function getServerUrl(event: H3Event): string | null {
 
   // Prefer env var from Cloudflare context, then runtime config
   let serverUrl =
-    cloudflareEnv?.SERVER_URL || config.serverUrl || process.env.SERVER_URL;
+    cloudflareEnv?.NUXT_SERVER_URL ||
+    config.serverUrl ||
+    process.env.NUXT_SERVER_URL;
 
   // Auto-detect localhost in dev mode
   if (import.meta.dev && !serverUrl) {

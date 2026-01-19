@@ -10,9 +10,9 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event);
   const cloudflareEnv = event.context.cloudflare?.env;
   const envSecret =
-    cloudflareEnv?.QUEUE_SECRET ||
+    cloudflareEnv?.NUXT_QUEUE_SECRET ||
     config.queueSecret ||
-    process.env.QUEUE_SECRET;
+    process.env.NUXT_QUEUE_SECRET;
 
   // Alloc if secret matches (Worker) OR if user is authenticated admin (UI)
   const isAdmin = !!event.context.user;

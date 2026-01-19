@@ -91,31 +91,20 @@ export const adminUsers = sqliteTable("admin_users", {
 });
 
 // Queue Jobs table schema
-export const jobs = sqliteTable(
-  "jobs",
-  {
-    id: integer("id").primaryKey({ autoIncrement: true }),
-    queue: text("queue").notNull(),
-    data: text("data", { mode: "json" }).$type<any>().notNull(),
-    status: text("status", { enum: ["pending", "running"] })
-      .default("pending")
-      .notNull(),
-    createdAt: text("created_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-    updatedAt: text("updated_at")
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
-  },
-  (table) => ({
-    // Index for efficient queue processing (finding pending jobs by queue)
-    queueStatusIdx: uniqueIndex("jobs_queue_status_created_idx").on(
-      table.queue,
-      table.status,
-      table.createdAt
-    ),
-  })
-);
+export const jobs = sqliteTable("jobs", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  queue: text("queue").notNull(),
+  data: text("data", { mode: "json" }).$type<any>().notNull(),
+  status: text("status", { enum: ["pending", "running"] })
+    .default("pending")
+    .notNull(),
+  createdAt: text("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: text("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
 
 // Queue Settings table schema
 export const queueSettings = sqliteTable("queue_settings", {

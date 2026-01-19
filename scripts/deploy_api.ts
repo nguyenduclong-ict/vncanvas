@@ -3,7 +3,7 @@ import fs from "fs";
 import dotenv from "dotenv";
 
 // Load .env
-dotenv.config();
+dotenv.config({ path: ".env.prod" });
 
 const WRANGLER_CONFIG = "wrangler.worker.json";
 const WRANGLER_TEMP_CONFIG = "wrangler.deploy.json";

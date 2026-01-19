@@ -145,7 +145,7 @@
                   class="flex-1 rounded-md border-gray-300 shadow-sm p-2 border text-sm"
                   placeholder="/images/..."
                 />
-                <img
+                <NuxtImg
                   v-if="section.image"
                   :src="getImageUrl(section.image)"
                   class="w-12 h-12 object-cover rounded border bg-white"

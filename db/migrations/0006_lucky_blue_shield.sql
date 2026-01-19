@@ -1,0 +1,1 @@
+DROP INDEX `jobs_queue_status_created_idx`;

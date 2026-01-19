@@ -19,7 +19,7 @@
     "build:api": "BUILD_TARGET=api nuxt build --dotenv .env.prod",
     "deploy:api": "npx tsx scripts/deploy_api.ts",
     "deploy_all:api": "npm run build:api && npm run deploy:api",
-    "dev:api": "npx wrangler dev .output/server/index.mjs --config wrangler.worker.json",
+    "dev:api": "npx wrangler dev .output/server/index.mjs --config wrangler.deploy.json",
     "build:web": "npx tsx scripts/build_ssg.ts",
     "deploy:web": "wrangler pages deploy dist --env-file .env.prod",
     "deploy_all:web": "npm run build:web && npm run deploy:web",

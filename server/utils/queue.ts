@@ -11,6 +11,7 @@ export async function addJobToQueue(
   data: any
 ) {
   const db = useDb(event);
+  const { env } = event.context.cloudflare;
 
   // 1. Insert job into DB
   await db.insert(jobs).values({
@@ -28,16 +29,37 @@ export async function addJobToQueue(
   // Prefer env var from Cloudflare context, then runtime config
   const serverUrl = getServerUrl(event);
 
-  console.log("serverUrl", serverUrl);
+  if (env?.WORKER) {
+    const request = new Request("https://internal/api/admin/queue/trigger", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        secret: cloudflareEnv?.NUXT_QUEUE_SECRET || config.queueSecret, // Use secret from env
+        queueName,
+      }),
+    });
 
-  if (serverUrl) {
+    const triggerPromise = await env.WORKER.fetch(request)
+      .then((res: any) => res.text())
+      .then((res: any) => {
+        console.log("Triggered queue", res);
+      })
+      .catch((err: any) => console.error("Failed to trigger queue:", err));
+    if (event.waitUntil) {
+      event.waitUntil(triggerPromise);
+    } else {
+      await triggerPromise;
+    }
+  } else if (serverUrl) {
     const triggerUrl = `${serverUrl}/api/admin/queue/trigger`;
 
     // Use waitUntil to avoid blocking the response
     const triggerPromise = $fetch(triggerUrl, {
       method: "POST",
       body: {
-        secret: cloudflareEnv?.QUEUE_SECRET || config.queueSecret, // Use secret from env
+        secret: cloudflareEnv?.NUXT_QUEUE_SECRET || config.queueSecret, // Use secret from env
         queueName,
       },
       ignoreResponseError: true, // Don't crash if trigger fails
@@ -45,17 +67,13 @@ export async function addJobToQueue(
       .catch((err) => {
         console.error("Failed to trigger queue:", err);
       })
-      .then(() => {
-        console.log("Triggered queue");
+      .then((response) => {
+        console.log("Triggered queue", response);
       });
 
     if (event.waitUntil) {
       event.waitUntil(triggerPromise);
     } else {
-      // If no waitUntil (not in worker?), just let it float (or await if critical?)
-      // For fire-and-forget without blocking, we just don't await it here.
-      // But in Node environment it might be killed?
-      // For now, assuming standard Nuxt/Nitro behavior.
       await triggerPromise;
     }
   } else {

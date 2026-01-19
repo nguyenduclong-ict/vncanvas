@@ -35,6 +35,7 @@ export const adminFetch = async <T = any>(url: string, options: any = {}) => {
   const baseUrl = useRuntimeConfig().public.apiUrl;
   return $fetch<T>(url, {
     retry: 1,
+    retryStatusCodes: [401],
     onResponseError: handleResponseError("adminFetch", baseUrl),
     baseURL: baseUrl,
     credentials: "include",

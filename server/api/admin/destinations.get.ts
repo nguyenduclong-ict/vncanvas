@@ -43,6 +43,8 @@ export default defineEventHandler(async (event) => {
     conditions.push(eq(destinations.aiGenStatus, "error"));
   } else if (aiStatus === "not_generated") {
     conditions.push(isNull(destinations.aiGenStatus));
+  } else if (aiStatus === "queued") {
+    conditions.push(eq(destinations.aiGenStatus, "queued"));
   }
 
   // Filter by hasDraft - check both destinations.draft and any translation.draft
@@ -52,7 +54,7 @@ export default defineEventHandler(async (event) => {
         SELECT 1 FROM destination_translations 
         WHERE destination_id = destinations.id 
         AND draft IS NOT NULL
-      ))`
+      ))`,
     );
   } else if (hasDraftFilter === "false") {
     conditions.push(
@@ -60,7 +62,7 @@ export default defineEventHandler(async (event) => {
         SELECT 1 FROM destination_translations 
         WHERE destination_id = destinations.id 
         AND draft IS NOT NULL
-      ))`
+      ))`,
     );
   }
 
@@ -76,7 +78,7 @@ export default defineEventHandler(async (event) => {
     conditions.push(
       sql`(${destinations.slug} LIKE ${"%" + search + "%"} OR ${
         destinations.name
-      } LIKE ${"%" + search + "%"})`
+      } LIKE ${"%" + search + "%"})`,
     );
   }
 
@@ -115,7 +117,7 @@ export default defineEventHandler(async (event) => {
     .from(destinations)
     .leftJoin(
       destinationTranslations,
-      eq(destinations.id, destinationTranslations.destinationId)
+      eq(destinations.id, destinationTranslations.destinationId),
     );
 
   if (whereClause) {

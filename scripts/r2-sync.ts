@@ -13,9 +13,17 @@ const PORT = 8787;
 // CLI args
 const args = process.argv.slice(2);
 const diffOnly = args.includes("--diff-only");
+let direction = "local-to-remote";
+if (args.includes("--to-local")) {
+  direction = "remote-to-local";
+} else if (args.includes("--to-remote")) {
+  direction = "local-to-remote";
+}
 
 async function main() {
-  console.log(`🚀 R2 Sync: ${diffOnly ? "diff-only" : "full"} mode`);
+  console.log(
+    `🚀 R2 Sync: ${direction} (${diffOnly ? "diff-only" : "full"} mode)`
+  );
 
   // 1. Validate env
   const r2S3Api = process.env.R2_S3_API;
@@ -85,8 +93,8 @@ async function main() {
   console.log("✅ Worker ready");
 
   // 4. Trigger sync
-  const syncUrl = `http://localhost:${PORT}/_sync${
-    diffOnly ? "?diff=true" : ""
+  const syncUrl = `http://localhost:${PORT}/_sync?direction=${direction}${
+    diffOnly ? "&diff=true" : ""
   }`;
   console.log(`📤 Triggering sync: ${syncUrl}`);
 

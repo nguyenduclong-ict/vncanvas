@@ -16,6 +16,9 @@ import QueueJobList from "~/components/admin/organisms/QueueJobList.vue";
 import { getCategories } from "~~/shared/constants/categories";
 import { getRegions } from "~~/shared/constants/regions";
 
+const config = useRuntimeConfig();
+const disableAi = computed(() => config.public.disableAi);
+
 definePageMeta({
   layout: "admin",
   middleware: "admin-auth",
@@ -53,7 +56,7 @@ const { data: response, refresh } = await useAdminFetch(
       hasDraft: filterHasDraft.value || undefined,
       q: debouncedSearch.value || undefined,
     })),
-  }
+  },
 );
 
 // Reset to page 1 when filters change
@@ -68,7 +71,7 @@ watch(
   ],
   () => {
     page.value = 1;
-  }
+  },
 );
 
 const destinations = computed<any[]>(() => response.value?.data || []);
@@ -100,7 +103,7 @@ function toggleAll() {
     selectedDestinations.value.clear();
   } else {
     destinations.value.forEach((d: any) =>
-      selectedDestinations.value.add(d.id)
+      selectedDestinations.value.add(d.id),
     );
   }
 }
@@ -135,12 +138,12 @@ const hasActiveFilters = computed(() => {
 });
 
 async function handleBulkAction(
-  action: "delete" | "publish" | "unpublish" | "merge_draft"
+  action: "delete" | "publish" | "unpublish" | "merge_draft",
 ) {
   if (action === "delete") {
     if (
       !confirm(
-        `Are you sure you want to delete ${selectedDestinations.value.size} destinations?`
+        `Are you sure you want to delete ${selectedDestinations.value.size} destinations?`,
       )
     ) {
       return;
@@ -220,7 +223,7 @@ function getAiGenStatusClass(slug: string, dbStatus?: string | null): string {
 async function handleBulkGenerate() {
   if (
     !confirm(
-      `This will generate AI content for ${selectedDestinations.value.size} selected destinations. Only destinations with source URLs will be processed. Continue?`
+      `This will generate AI content for ${selectedDestinations.value.size} selected destinations. Only destinations with source URLs will be processed. Continue?`,
     )
   ) {
     return;
@@ -236,7 +239,7 @@ async function handleBulkGenerate() {
 
     if (result.skipped && result.skipped > 0) {
       alert(
-        `Started processing. ${result.skipped} destination(s) skipped (no source URLs).`
+        `Started processing. ${result.skipped} destination(s) skipped (no source URLs).`,
       );
     } else {
       alert(result.message);
@@ -312,7 +315,7 @@ let pollInterval: ReturnType<typeof setInterval> | null = null;
 async function stopQueue() {
   if (
     !confirm(
-      "Are you sure you want to stop the queue and clear all pending jobs?"
+      "Are you sure you want to stop the queue and clear all pending jobs?",
     )
   )
     return;
@@ -357,7 +360,7 @@ async function deleteJob(jobId: number) {
     // Since we can't easily access the component instance from inside the table row click if we don't have a ref...
     // Let's just manually fetch to update our local state
     const response = await adminFetch<any>(
-      "/api/admin/queue/jobs?queue=ai-queue"
+      "/api/admin/queue/jobs?queue=ai-queue",
     );
     queueJobs.value = response.data || [];
     await fetchQueueStatus(); // Refresh summary
@@ -462,11 +465,13 @@ onUnmounted(() => {
 
       <!-- AI Status Filter -->
       <select
+        v-if="!disableAi"
         v-model="filterAiStatus"
         class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
       >
         <option value="">All AI Status</option>
         <option value="not_generated">Not Generated</option>
+        <option value="queued">Queued</option>
         <option value="processing">Processing</option>
         <option value="done">Done</option>
         <option value="error">Error</option>
@@ -513,6 +518,7 @@ onUnmounted(() => {
       </span>
       <div class="flex gap-2">
         <button
+          v-if="!disableAi"
           @click="handleBulkGenerate"
           class="flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm font-medium transition-colors"
           :disabled="isLoading"
@@ -520,7 +526,7 @@ onUnmounted(() => {
           <Sparkles class="w-4 h-4" />
           AI Gen
         </button>
-        <div class="w-px bg-emerald-200 mx-1"></div>
+        <div v-if="!disableAi" class="w-px bg-emerald-200 mx-1"></div>
         <button
           @click="handleBulkAction('merge_draft')"
           class="flex items-center gap-1 px-3 py-1.5 bg-purple-50 border border-purple-200 text-purple-700 rounded hover:bg-purple-100 text-sm font-medium transition-colors"
@@ -563,7 +569,7 @@ onUnmounted(() => {
 
     <!-- AI Generation Progress -->
     <div
-      v-if="genProgress?.isProcessing"
+      v-if="!disableAi && genProgress?.isProcessing"
       class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4"
     >
       <div class="flex items-center gap-2 mb-2">
@@ -653,6 +659,7 @@ onUnmounted(() => {
               </th>
               <th
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24"
+                v-if="!disableAi"
               >
                 AI Gen
               </th>
@@ -713,7 +720,7 @@ onUnmounted(() => {
                   </span>
                 </div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap">
+              <td class="px-6 py-4 whitespace-nowrap" v-if="!disableAi">
                 <span
                   v-if="getAiGenStatus(dest.slug, dest.aiGenStatus)"
                   :class="getAiGenStatusClass(dest.slug, dest.aiGenStatus)"

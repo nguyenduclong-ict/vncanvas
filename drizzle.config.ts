@@ -31,16 +31,18 @@ export default defineConfig({
   schema: "./db/schema.ts",
   out: "./db/migrations",
   dialect: "sqlite",
-  ...(localDbPath ? {} : { driver: "d1-http" }),
-  dbCredentials: localDbPath
+  ...(localDbPath
     ? {
-        url: localDbPath,
+        dbCredentials: {
+          url: localDbPath,
+        },
       }
     : {
-        wranglerConfigPath: "./wrangler.toml",
-        dbName: "vietnam-canvas-db",
-        accountId: "10d9b9cb0a45ac2a84aef9ec7eda601b",
-        databaseId: "5247e97b-d6aa-46e2-8f45-338c6ef09275",
-        token: process.env.CLOUDFLARE_API_TOKEN,
-      },
+        driver: "d1-http",
+        dbCredentials: {
+          accountId: "10d9b9cb0a45ac2a84aef9ec7eda601b",
+          databaseId: "5247e97b-d6aa-46e2-8f45-338c6ef09275",
+          token: process.env.CLOUDFLARE_API_TOKEN,
+        },
+      }),
 });

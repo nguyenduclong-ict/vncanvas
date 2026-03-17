@@ -17,6 +17,9 @@ const { getImageUrl } = useImageUrl();
 const categories = getCategories("vi");
 const moodTags = getMoodTags("vi");
 
+const config = useRuntimeConfig();
+const disableAi = computed(() => config.public.disableAi);
+
 // View mode: 'draft' (default, editable) or 'published' (readonly)
 const viewMode = ref<"draft" | "published">("draft");
 const hasDraft = ref(false);
@@ -373,7 +376,7 @@ const activeTab = ref("info"); // info, vi, en
 
         <!-- AI Gen Status Badge -->
         <div
-          v-if="aiGenStatus"
+          v-if="!disableAi && aiGenStatus"
           class="flex items-center gap-2 px-3 py-1.5 rounded bg-gray-50 border text-sm"
         >
           <span v-if="aiGenStatus === 'processing'" class="animate-spin">
@@ -391,7 +394,7 @@ const activeTab = ref("info"); // info, vi, en
 
         <button
           @click="generateContent"
-          v-if="viewMode === 'draft'"
+          v-if="!disableAi && viewMode === 'draft'"
           :disabled="
             isGenerating ||
             aiGenStatus === 'queued' ||

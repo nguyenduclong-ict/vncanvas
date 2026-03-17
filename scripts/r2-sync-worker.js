@@ -28,9 +28,16 @@ export default {
     // Handle /_sync endpoint
     if (url.pathname === "/_sync") {
       const diffOnly = url.searchParams.get("diff") === "true";
+      const direction = url.searchParams.get("direction") || "local-to-remote";
 
       try {
-        const result = await syncR2(env.STORAGE, s3Client, diffOnly);
+        let result;
+        if (direction === "remote-to-local") {
+          result = await syncR2RemoteToLocal(env.STORAGE, s3Client, diffOnly);
+        } else {
+          result = await syncR2LocalToRemote(env.STORAGE, s3Client, diffOnly);
+        }
+
         return new Response(JSON.stringify(result, null, 2), {
           headers: { "Content-Type": "application/json" },
         });
@@ -47,7 +54,10 @@ export default {
       });
     }
 
-    return new Response("Use /_sync or /_sync?diff=true", { status: 200 });
+    return new Response(
+      "Use /_sync?diff=true&direction=local-to-remote (default) or direction=remote-to-local",
+      { status: 200 }
+    );
   },
 };
 
@@ -100,6 +110,19 @@ class S3Client {
     } while (continuationToken);
 
     return keys;
+  }
+
+  async getObject(key) {
+    const url = `${this.endpoint}/${this.bucket}/${key}`;
+    const res = await this.signedFetch(url, "GET");
+    if (!res.ok) return null;
+
+    // Convert ArrayBuffer to Uint8Array for easy handling
+    const arrayBuffer = await res.arrayBuffer();
+    return {
+      body: new Uint8Array(arrayBuffer),
+      contentType: res.headers.get("content-type"),
+    };
   }
 
   async putObject(key, body, contentType) {
@@ -194,7 +217,7 @@ class S3Client {
   }
 }
 
-async function syncR2(storage, s3Client, diffOnly) {
+async function syncR2LocalToRemote(storage, s3Client, diffOnly) {
   // 1. List local keys
   const localKeys = [];
   let cursor;
@@ -267,7 +290,81 @@ async function syncR2(storage, s3Client, diffOnly) {
 
   return {
     mode: diffOnly ? "diff-only" : "full",
+    direction: "local-to-remote",
     localTotal: localKeys.length,
+    toSync: keysToSync.length,
+    success: successCount,
+    failed: failCount,
+    errors: errors.slice(0, 10),
+  };
+}
+
+async function syncR2RemoteToLocal(storage, s3Client, diffOnly) {
+  // 1. List remote keys
+  const remoteKeys = await s3Client.listObjects();
+
+  // 2. List local keys if diff mode
+  let keysToSync = remoteKeys;
+  if (diffOnly) {
+    const localKeys = [];
+    let cursor;
+    do {
+      const list = await storage.list({ limit: 1000, cursor });
+      for (const obj of list.objects) {
+        if (!obj.key.includes("DEBUG_LOCATOR")) {
+          localKeys.push(obj.key);
+        }
+      }
+      cursor = list.truncated ? list.cursor : undefined;
+    } while (cursor);
+
+    const localSet = new Set(localKeys);
+    keysToSync = remoteKeys.filter((k) => !localSet.has(k));
+  }
+
+  // 3. Download and save
+  let successCount = 0;
+  let failCount = 0;
+  const errors = [];
+  const total = keysToSync.length;
+  const BATCH_SIZE = 4;
+
+  for (let i = 0; i < keysToSync.length; i += BATCH_SIZE) {
+    const batch = keysToSync.slice(i, i + BATCH_SIZE);
+
+    await Promise.all(
+      batch.map(async (key) => {
+        try {
+          const object = await s3Client.getObject(key);
+          if (!object) {
+            // If it is gone from remote between list and get, ignore
+            errors.push({ key, error: "Not found in remote" });
+            failCount++;
+            return;
+          }
+
+          // Write to local R2 binding
+          await storage.put(key, object.body, {
+            httpMetadata: { contentType: object.contentType },
+          });
+
+          successCount++;
+          console.log(`[${successCount + failCount}/${total}] ✓ ${key}`);
+        } catch (e) {
+          errors.push({ key, error: e.message });
+          failCount++;
+          console.log(
+            `[${successCount + failCount}/${total}] ✗ ${key}: ${e.message}`
+          );
+        }
+      })
+    );
+  }
+
+  return {
+    mode: diffOnly ? "diff-only" : "full",
+    direction: "remote-to-local",
+    remoteTotal: remoteKeys.length,
     toSync: keysToSync.length,
     success: successCount,
     failed: failCount,

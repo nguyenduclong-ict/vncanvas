@@ -4,7 +4,9 @@ const route = useRoute();
 
 const logout = async () => {
   await $fetch("/api/auth/logout", { method: "POST" });
-  router.push("/admin/login");
+  if (route.path !== "/admin/login") {
+    router.push("/admin/login").catch(() => {});
+  }
 };
 </script>
 

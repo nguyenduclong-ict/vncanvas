@@ -1,5 +1,4 @@
 import { GoogleGenAI } from "@google/genai";
-import { MOOD_TAGS } from "../../shared/constants/moods";
 import { getNextGeminiKey, updateKeyUsage } from "./keyRotator";
 
 export const generateDestinationContent = async (

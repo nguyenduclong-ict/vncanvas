@@ -14,6 +14,7 @@ config = defineNuxtConfig({
     public: {
       apiUrl: "",
       assetsUrl: "",
+      disableAi: false,
     },
   },
   devtools: { enabled: true },

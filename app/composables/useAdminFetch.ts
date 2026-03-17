@@ -12,7 +12,9 @@ const handleResponseError =
         });
       } catch (refreshError) {
         console.log(`Refresh error in ${name}`, refreshError);
-        router.push("/admin/login");
+        if (router.currentRoute.value.path !== "/admin/login") {
+          router.push("/admin/login").catch(() => {});
+        }
       }
     } else {
       throw error;

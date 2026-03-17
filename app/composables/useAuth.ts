@@ -24,12 +24,15 @@ export const useAuth = () => {
   };
 
   const logout = async () => {
+    const route = useRoute();
     await $fetch("/api/auth/logout", {
       method: "POST",
       baseURL: config.apiUrl,
     });
     user.value = null;
-    navigateTo("/admin/login");
+    if (route.path !== "/admin/login") {
+      navigateTo("/admin/login");
+    }
   };
 
   return {

@@ -2,6 +2,9 @@
 import Pagination from "~/components/admin/molecules/Pagination.vue";
 import QueueJobList from "~/components/admin/organisms/QueueJobList.vue";
 
+const config = useRuntimeConfig();
+const disableAi = computed(() => config.public.disableAi);
+
 definePageMeta({
   layout: "admin",
   middleware: "admin-auth",
@@ -162,6 +165,7 @@ const activeTab = ref<string>("api-keys");
   <div class="max-w-4xl mx-auto">
     <!-- Tabs -->
     <div
+      v-if="!disableAi"
       class="border-b border-gray-200 mb-6 overflow-x-auto overflow-y-hidden"
     >
       <nav class="-mb-px flex space-x-8">
@@ -214,8 +218,12 @@ const activeTab = ref<string>("api-keys");
       </nav>
     </div>
 
+    <div v-if="disableAi" class="py-12 text-center text-gray-500">
+      <p class="mb-2">AI and Job Queue settings are currently disabled in this environment.</p>
+    </div>
+
     <!-- API Keys Tab -->
-    <div v-show="activeTab === 'api-keys'">
+    <div v-show="!disableAi && activeTab === 'api-keys'">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-bold">API Key Management</h2>
         <button
@@ -372,7 +380,7 @@ const activeTab = ref<string>("api-keys");
     </div>
 
     <!-- Dynamic Queue Tabs -->
-    <div v-if="activeTab !== 'api-keys' && selectedQueue" class="space-y-6">
+    <div v-if="!disableAi && activeTab !== 'api-keys' && selectedQueue" class="space-y-6">
       <!-- Queue Stats & Actions Card -->
       <div class="bg-white rounded-lg shadow p-6 border border-gray-100">
         <div class="flex justify-between items-start mb-4">
